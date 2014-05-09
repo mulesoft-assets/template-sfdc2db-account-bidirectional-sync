@@ -1,27 +1,52 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<mule xmlns:http="http://www.mulesoft.org/schema/mule/http"
-      xmlns="http://www.mulesoft.org/schema/mule/core"
-      xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
-      xmlns:spring="http://www.springframework.org/schema/beans"
-      version="EE-3.4.1"
-      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-      xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
+<mule xmlns:db="http://www.mulesoft.org/schema/mule/db" xmlns:batch="http://www.mulesoft.org/schema/mule/batch"
+	xmlns:tracking="http://www.mulesoft.org/schema/mule/ee/tracking"
+	xmlns:sfdc="http://www.mulesoft.org/schema/mule/sfdc" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:spring="http://www.springframework.org/schema/beans" version="EE-3.5.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.mulesoft.org/schema/mule/batch http://www.mulesoft.org/schema/mule/batch/current/mule-batch.xsd
+http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
 http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
-http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd">
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/sfdc http://www.mulesoft.org/schema/mule/sfdc/current/mule-sfdc.xsd
+http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/mule/ee/tracking/current/mule-tracking-ee.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd">
 
-	<!-- 	In this file you should declare all your inbound endpoints and from here controll the access to your application -->
+	<flow name="triggerSyncFromAFlow" doc:name="triggerSyncFromAFlow"
+		processingStrategy="synchronous" initialState="started">
+		<poll doc:name="Poll">
+			<fixed-frequency-scheduler frequency="${polling.frequency}"
+				startDelay="1000" />
+			<watermark variable="lastQueryDateA" default-expression="${watermark.default.expression}"
+				selector="MAX" selector-expression="#[payload.LastModifiedDate]" />
+			<sfdc:query config-ref="Salesforce"
+				query="dsql:SELECT AccountNumber, AccountSource, AnnualRevenue, BillingCity, BillingCountry, BillingPostalCode, BillingState, BillingStreet, Description, Fax, Id, Industry, LastModifiedById, LastModifiedDate, Name, NumberOfEmployees, OwnerId, Ownership, ParentId, Phone, Rating, ShippingCity, ShippingCountry, ShippingPostalCode, ShippingState, ShippingStreet, Sic, SicDesc, Site, TickerSymbol, Type, Website FROM Account WHERE LastModifiedDate &gt; #[flowVars['lastQueryDateA']] ORDER BY LastModifiedDate ASC LIMIT 200"
+				doc:name="fetch accounts from A" />
+		</poll>
+		<expression-component doc:name="convert lastQueryDateA to Date"><![CDATA[f = new java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+f.setTimeZone(TimeZone.getTimeZone("UTC"));
+lastQueryDateA = f.parse(lastQueryDateA);
+]]></expression-component>
+		<set-variable variableName="sourceSystem" value="A"
+			doc:name="set A as source system" />
+		<batch:execute name="syncBatch" doc:name="trigger batch execution" />
+	</flow>
 
-	<flow name="triggerFlow" processingStrategy="synchronous" doc:name="triggerFlow" doc:description="This is the simpliest entry point to start the excecution of your Template
-Here you should:
-	* Define any inbound endpoint
-	* Handle any input parameter and transform it into the expected format by the mainFlow
-Here you should not:
-	* Run validations against external systems
-	* Choose flow of your application based on input parameters">
-        <http:inbound-endpoint exchange-pattern="request-response" host="localhost" port="${http.port}" path="" doc:name="Start Synchronization"/>
-        
-        <flow-ref name="mainFlow" doc:description="mainFlow"  doc:name="mainFlow"/>
-    
-    </flow>
+	<flow name="triggerSyncFromBFlow" doc:name="triggerSyncFromBFlow"
+		processingStrategy="synchronous" initialState="started">
+		<poll doc:name="Poll">
+			<fixed-frequency-scheduler frequency="${polling.frequency}"
+				startDelay="1000" />
+			<watermark variable="lastQueryDateB" default-expression="${watermark.default.expression}"
+				selector="MAX" selector-expression="#[payload.LastModifiedDate]" />
+			<db:select config-ref="GenericDatabaseConnector" doc:name="fetch accounts from B">
+                <db:parameterized-query><![CDATA[SELECT SalesforceId, Name, AccountNumber, AccountSource, AccountCurrency, AnnualRevenue, BillingCity, BillingCountry, BillingPostalCode, BillingState, BillingStreet, Description, Fax, Industry, LastModifiedDate, NumberOfEmployees, Ownership, Phone, Rating, ShippingCity, ShippingCountry, ShippingPostalCode, ShippingState, ShippingStreet, Sic, SicDesc, Site, TickerSymbol, Type, Website FROM Account WHERE LastModifiedDate > #[flowVars['lastQueryDateB']] ORDER BY LastModifiedDate ASC]]></db:parameterized-query>
+			</db:select>
+		</poll>
+		<set-variable variableName="sourceSystem" value="B"
+			doc:name="set B as source system" />
+		<batch:execute name="syncBatch" doc:name="trigger batch execution" />
+	</flow>
 </mule>

@@ -1,21 +1,201 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<mule xmlns:tracking="http://www.mulesoft.org/schema/mule/ee/tracking"
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:tracking="http://www.mulesoft.org/schema/mule/ee/tracking"
       xmlns="http://www.mulesoft.org/schema/mule/core"
       xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
       xmlns:spring="http://www.springframework.org/schema/beans"
-      version="EE-3.4.1"
+      xmlns:db="http://www.mulesoft.org/schema/mule/db"
+      xmlns:sfdc="http://www.mulesoft.org/schema/mule/sfdc"
+      xmlns:batch="http://www.mulesoft.org/schema/mule/batch"
+      version="EE-3.5.0"
       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
 http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
-http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/mule/ee/tracking/current/mule-tracking-ee.xsd">
-    <flow name="mainFlow" doc:name="mainFlow" doc:description="This flow is the entry point to the Kick business logic.
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/sfdc http://www.mulesoft.org/schema/mule/sfdc/current/mule-sfdc.xsd
+http://www.mulesoft.org/schema/mule/batch http://www.mulesoft.org/schema/mule/batch/current/mule-batch.xsd
+http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/mule/ee/tracking/current/mule-tracking-ee.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
 
-This flow should control the direction of the application, and it should be called by the different endpoints that your Template exposes to trigger it.
+	<batch:job name="syncBatch">
+		<batch:threading-profile poolExhaustedAction="WAIT" />
+		<batch:process-records>
 
-">
-        <logger message="Running main flow..." level="INFO" doc:name="Logger"/>
-        <set-payload value="#['Main flow run successfully']" doc:name="Set Payload"/>
-        <exception-strategy ref="defaultChoiceExceptionStrategy" doc:name="Reference Exception Strategy"/>
-    </flow>
+			<batch:step name="getAccountInBStep" filter-expression="#['B'.equals(flowVars['sourceSystem'])]">
+				<expression-component doc:name="convert LastModifiedDate to Date"><![CDATA[f = new java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+f.setTimeZone(TimeZone.getTimeZone("UTC"));
+payload['LastModifiedDate'] = f.parse(payload['LastModifiedDate']);
+]]></expression-component>
+				<enricher
+					source="#[payload.isEmpty() ? NullPayload.getInstance() : payload[0]]"
+					target="#[recordVars['accountInTargetInstance']]" doc:name="store account">
+					<db:select config-ref="GenericDatabaseConnector" doc:name="query account from B">
+                        <db:parameterized-query><![CDATA[SELECT * FROM Account WHERE SalesforceId = #[payload['Id']]]]></db:parameterized-query>
+					</db:select>
+				</enricher>
+				<expression-component doc:name="prepare account for upsert"><![CDATA[payload.remove('LastModifiedById');
+payload.remove('LastModifiedDate');
+]]></expression-component>
+			</batch:step>
+
+			<batch:step name="upsertAccountInBStep"
+				filter-expression="#['B'.equals(flowVars['sourceSystem']) || recordVars['accountInTargetInstance'] is NullPayload || recordVars['accountInTargetInstance']['LastModifiedDate'] &gt;= payload['LastModifiedDate'] || '${sfdc.integration.user.id}' == payload.get('LastModifiedById')]">
+				<batch:commit size="200" doc:name="Batch Commit">
+					<db:update config-ref="GenericDatabaseConnector" bulkMode="true"
+						doc:name="update accounts in Database">
+                        <db:parameterized-query><![CDATA[UPDATE Account SET
+	AccountNumber = #[payload['AccountNumber']],
+	AccountSource = #[payload['AccountSource']],
+	AnnualRevenue = #[payload['AnnualRevenue']],
+	BillingCity = #[payload['BillingCity']],
+	BillingCountry = #[payload['BillingCountry']],
+	BillingPostalCode = #[payload['BillingPostalCode']],
+	BillingState = #[payload['BillingState']],
+	BillingStreet = #[payload['BillingStreet']],
+	Description = #[payload['Description']],
+	Fax = #[payload['Fax']],
+	Industry = #[payload['Industry']],
+	Name = #[payload['Name']],
+	NumberOfEmployees = #[payload['NumberOfEmployees']],
+	OwnerId = #[payload['OwnerId']],
+	Ownership = #[payload['Ownership']],
+	ParentId = #[payload['ParentId']],
+	Phone = #[payload['Phone']],
+	Rating = #[payload['Rating']],
+	ShippingCity = #[payload['ShippingCity']],
+	ShippingCountry = #[payload['ShippingCountry']],
+	ShippingPostalCode = #[payload['ShippingPostalCode']],
+	ShippingState = #[payload['ShippingState']],
+	ShippingStreet = #[payload['ShippingStreet']],
+	Sic = #[payload['Sic']],
+	SicDesc = #[payload['SicDesc']],
+	Site = #[payload['Site']],
+	TickerSymbol = #[payload['TickerSymbol']],
+	Type = #[payload['Type']],
+	Website = #[payload['Website']],
+	LastModifiedById = CURRENT_USER,
+	LastModifiedDate = CURRENT_TIMESTAMP
+WHERE SalesforceId = #[payload['Id']]]]></db:parameterized-query>
+					</db:update>
+					<logger message="Update Database B response: #[payload]"
+						level="INFO" doc:name="log response" />
+				</batch:commit>
+			</batch:step>
+			<batch:step name="insertAccountsToBStep"
+				filter-expression="#['B'.equals(flowVars['sourceSystem']) || !(recordVars['accountInTargetInstance'] is NullPayload)]">
+				<batch:commit size="200" doc:name="Batch Commit">
+					<db:insert config-ref="GenericDatabaseConnector" bulkMode="true"
+						doc:name="insert accounts to Database">
+                        <db:parameterized-query><![CDATA[INSERT INTO Account (
+                        
+                               
+                        
+                        
+	SalesforceId,
+	AccountNumber,
+	AccountSource,
+	
+	AnnualRevenue,
+	BillingCity,
+	BillingCountry,
+	BillingPostalCode,
+	BillingState,
+	BillingStreet,
+	Description,
+	Fax,
+	Industry,
+	Name,
+	NumberOfEmployees,
+	OwnerId,
+	Ownership,
+	ParentId,
+	Phone,
+	Rating,
+	ShippingCity,
+	ShippingCountry,
+	ShippingPostalCode,
+	ShippingState,
+	ShippingStreet,
+	Sic,
+	SicDesc,
+	Site,
+	TickerSymbol,
+	Type,
+	Website,
+	LastModifiedById,
+	LastModifiedDate
+) VALUES (
+	#[payload['Id']],
+	#[payload['AccountNumber']],
+	#[payload['AccountSource']],
+	#[payload['AnnualRevenue']],
+	#[payload['BillingCity']],
+	#[payload['BillingCountry']],
+	#[payload['BillingPostalCode']],
+	#[payload['BillingState']],
+	#[payload['BillingStreet']],
+	#[payload['Description']],
+	#[payload['Fax']],
+	#[payload['Industry']],
+	#[payload['Name']],
+	#[payload['NumberOfEmployees']],
+	#[payload['OwnerId']],
+	#[payload['Ownership']],
+	#[payload['ParentId']],
+	#[payload['Phone']],
+	#[payload['Rating']],
+	#[payload['ShippingCity']],
+	#[payload['ShippingCountry']],
+	#[payload['ShippingPostalCode']],
+	#[payload['ShippingState']],
+	#[payload['ShippingStreet']],
+	#[payload['Sic']],
+	#[payload['SicDesc']],
+	#[payload['Site']],
+	#[payload['TickerSymbol']],
+	#[payload['Type']],
+	#[payload['Website']],
+	CURRENT_USER,
+	CURRENT_TIMESTAMP
+)]]></db:parameterized-query>
+					</db:insert>
+					<logger message="Insert Database B response: #[payload]"	level="INFO" doc:name="log response" />
+				</batch:commit>
+			</batch:step>
+			<batch:step name="getAccountInAStep" filter-expression="#['A'.equals(flowVars['sourceSystem'])]">
+				<enricher source="#[payload]" target="#[recordVars['accountInTargetInstance']]" doc:name="store account">
+					<processor-chain doc:name="Processor Chain">
+						<sfdc:query-single config-ref="Salesforce"
+							query="SELECT Id, Name, LastModifiedDate, NumberOfEmployees FROM Account WHERE (Id = '#[payload['SalesforceId']]')" doc:name="query account from A" />
+						<expression-component doc:name="Expression"><![CDATA[f = new java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+f.setTimeZone(TimeZone.getTimeZone("UTC"));
+payload['LastModifiedDate'] = f.parse(payload['LastModifiedDate']);
+]]></expression-component>
+					</processor-chain>
+				</enricher>
+			</batch:step>
+
+			<batch:step name="upsertAccountInAStep"
+				filter-expression="#[('A'.equals(flowVars['sourceSystem'])) || (recordVars['accountInTargetInstance'] is NullPayload ? false : (recordVars['accountInTargetInstance']['LastModifiedDate'] &gt;= payload['LastModifiedDate']) || ('${db.integration.user.id}' == payload.get('LastModifiedById')))]">
+				<expression-component doc:name="prepare account for upsert"><![CDATA[if(!(payload['NumberOfEmployees'] == null)) {
+	payload.put('NumberOfEmployees', Integer.parseInt(payload['NumberOfEmployees']));
+}
+
+	payload.remove('LastModifiedById');
+	payload.remove('LastModifiedDate');
+	payload.remove('SalesforceId');
+]]></expression-component>
+				<batch:commit size="200" doc:name="Batch Commit">
+					<sfdc:upsert config-ref="Salesforce"
+						externalIdFieldName="Id" type="Account" doc:name="upsert account in A">
+						<sfdc:objects ref="#[payload]" />
+					</sfdc:upsert>
+					<logger message="Upsert Salesforce A response: #[payload]"
+						level="ERROR" doc:name="log response" />
+				</batch:commit>
+			</batch:step>
+
+		</batch:process-records>
+	</batch:job>
+
 </mule>

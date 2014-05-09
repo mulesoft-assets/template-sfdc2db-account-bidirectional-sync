@@ -16,6 +16,7 @@
 		<mule.version>3.5.0-M4</mule.version>
 		<munit.version>3.5-M1</munit.version>
 		<junit.version>4.9</junit.version>
+		<sfdc.version>5.4.3</sfdc.version>
 		
 		<eclipsePluginVersion>2.8</eclipsePluginVersion>
 		<jdkName>JavaSE-1.6</jdkName>
@@ -320,6 +321,12 @@
 
 	<!-- Mule Dependencies -->
 	<dependencies>
+		<!-- database connector -->
+		<dependency>
+			<groupId>mysql</groupId>
+			<artifactId>mysql-connector-java</artifactId>
+			<version>5.1.26</version>
+		</dependency>
 		<dependency>
 			<groupId>org.mule</groupId>
 			<artifactId>mule-core</artifactId>
@@ -429,6 +436,11 @@
 		</dependency>
 
 		<!-- Connectors -->
+		<dependency>
+			<groupId>org.mule.modules</groupId>
+			<artifactId>mule-module-sfdc</artifactId>
+			<version>${sfdc.version}</version>
+		</dependency>
 
 
 		<!-- for testing -->
