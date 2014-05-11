@@ -20,7 +20,7 @@ Please review the terms of the license before downloading and using this templat
 
 # Use Case <a name="usecase"/>
 
-As a Salesforce admin, I want to have my users synchronized between Salesforce and Database organizations
+As a Salesforce admin, I want to have my accounts synchronized between Salesforce and Database organizations.
 
 ## Template overview <a name="templateoverview"/>
 
@@ -57,7 +57,7 @@ In order to have the template up and running just complete the two following ste
 **Note:** This particular Anypoint Template illustrate the synchronization use case between SalesForce and a Database, thus it requires a DB instance to work.
 The Anypoint Template comes packaged with a SQL script to create the DB table that uses. 
 It is the user responsibility to use that script to create the table in an available schema and change the configuration accordingly.
-The SQL script file can be found in [src/main/resources/sfdc2jdbc.sql] (../master/src/main/resources/sfdc2jdbc.sql)
+The SQL script file can be found in [src/main/resources/account.sql] (../master/src/main/resources/account.sql)
 
 ## Properties to be configured<a name="propertiestobeconfigured"/>
 
@@ -169,3 +169,8 @@ For you convinience we have added a file mule.test.properties located in "src/te
 In the run configurations of the test just make sure to add the following property:
 
 + -Dmule.env=test
+
+  [1]: http://www.mulesoft.org/documentation/display/current/Poll+Reference
+  [2]: http://blogs.mulesoft.org/data-synchronizing-made-easy-with-mule-watermarks/
+  [3]: http://www.salesforce.com/us/developer/docs/officetoolkit/Content/sforce_api_calls_soql_select_dateformats.htm
+
