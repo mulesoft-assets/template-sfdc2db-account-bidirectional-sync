@@ -30,7 +30,7 @@ payload['LastModifiedDate'] = f.parse(payload['LastModifiedDate']);
 					source="#[payload.isEmpty() ? NullPayload.getInstance() : payload[0]]"
 					target="#[recordVars['accountInTargetInstance']]" doc:name="store account">
 					<db:select config-ref="GenericDatabaseConnector" doc:name="query account from B">
-                        <db:parameterized-query><![CDATA[SELECT * FROM Account WHERE SalesforceId = #[payload['Id']]]]></db:parameterized-query>
+                        <db:parameterized-query><![CDATA[SELECT * FROM Account WHERE Name = #[payload['Name']]]]></db:parameterized-query>
 					</db:select>
 				</enricher>
 				<expression-component doc:name="prepare account for upsert"><![CDATA[payload.remove('LastModifiedById');
@@ -55,7 +55,6 @@ payload.remove('LastModifiedDate');
 	Description = #[payload['Description']],
 	Fax = #[payload['Fax']],
 	Industry = #[payload['Industry']],
-	Name = #[payload['Name']],
 	NumberOfEmployees = #[payload['NumberOfEmployees']],
 	OwnerId = #[payload['OwnerId']],
 	Ownership = #[payload['Ownership']],
@@ -75,7 +74,7 @@ payload.remove('LastModifiedDate');
 	Website = #[payload['Website']],
 	LastModifiedById = CURRENT_USER,
 	LastModifiedDate = CURRENT_TIMESTAMP
-WHERE SalesforceId = #[payload['Id']]]]></db:parameterized-query>
+WHERE Name = #[payload['Name']]]]></db:parameterized-query>
 					</db:update>
 					<logger message="Update Database B response: #[payload]"
 						level="INFO" doc:name="log response" />
@@ -87,14 +86,9 @@ WHERE SalesforceId = #[payload['Id']]]]></db:parameterized-query>
 					<db:insert config-ref="GenericDatabaseConnector" bulkMode="true"
 						doc:name="insert accounts to Database">
                         <db:parameterized-query><![CDATA[INSERT INTO Account (
-                        
-                               
-                        
-                        
 	SalesforceId,
 	AccountNumber,
 	AccountSource,
-	
 	AnnualRevenue,
 	BillingCity,
 	BillingCountry,
@@ -166,11 +160,12 @@ WHERE SalesforceId = #[payload['Id']]]]></db:parameterized-query>
 				<enricher source="#[payload]" target="#[recordVars['accountInTargetInstance']]" doc:name="store account">
 					<processor-chain doc:name="Processor Chain">
 						<sfdc:query-single config-ref="Salesforce"
-							query="SELECT Id, Name, LastModifiedDate, NumberOfEmployees FROM Account WHERE (Id = '#[payload['SalesforceId']]')" doc:name="query account from A" />
-						<expression-component doc:name="Expression"><![CDATA[f = new java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
-f.setTimeZone(TimeZone.getTimeZone("UTC"));
-payload['LastModifiedDate'] = f.parse(payload['LastModifiedDate']);
-]]></expression-component>
+							query="SELECT Id, Name, LastModifiedDate, NumberOfEmployees FROM Account WHERE (Name = '#[payload['Name']]')" doc:name="query account from A" />
+                        <expression-component doc:name="Expression"><![CDATA[if (!(payload is NullPayload)) {
+	f = new java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+	f.setTimeZone(TimeZone.getTimeZone("UTC"));
+	payload['LastModifiedDate'] = f.parse(payload['LastModifiedDate']);
+}]]></expression-component>
 					</processor-chain>
 				</enricher>
 			</batch:step>
@@ -179,6 +174,10 @@ payload['LastModifiedDate'] = f.parse(payload['LastModifiedDate']);
 				filter-expression="#[('A'.equals(flowVars['sourceSystem'])) || (recordVars['accountInTargetInstance'] is NullPayload ? false : (recordVars['accountInTargetInstance']['LastModifiedDate'] &gt;= payload['LastModifiedDate']) || ('${db.integration.user.id}' == payload.get('LastModifiedById')))]">
 				<expression-component doc:name="prepare account for upsert"><![CDATA[if(!(payload['NumberOfEmployees'] == null)) {
 	payload.put('NumberOfEmployees', Integer.parseInt(payload['NumberOfEmployees']));
+}
+
+if(!(payload['SalesforceId'] == null)) {
+	payload.put('Id', payload['SalesforceId']);
 }
 
 	payload.remove('LastModifiedById');

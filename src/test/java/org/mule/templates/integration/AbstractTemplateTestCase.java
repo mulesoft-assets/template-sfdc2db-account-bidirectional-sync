@@ -20,7 +20,7 @@ public class AbstractTemplateTestCase extends FunctionalTestCase {
 	private static final String TEST_FLOWS_FOLDER_PATH = "./src/test/resources/flows/";
 	private static final String MULE_DEPLOY_PROPERTIES_PATH = "./src/main/app/mule-deploy.properties";
 
-	protected static final String TEMPLATE_NAME = "opportunity-aggregation";
+	protected static final String TEMPLATE_NAME = "account-bidirectional-sync";
 
 	@Rule
 	public DynamicPort port = new DynamicPort("http.port");
