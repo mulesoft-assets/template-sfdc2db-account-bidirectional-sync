@@ -14,7 +14,7 @@ http://www.mulesoft.org/schema/mule/sfdc http://www.mulesoft.org/schema/mule/sfd
 http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/mule/ee/tracking/current/mule-tracking-ee.xsd
 http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd">
 
-	<flow name="triggerSyncFromAFlow" doc:name="triggerSyncFromAFlow"
+	<flow name="triggerSyncFromSalesforceFlow" doc:name="triggerSyncFromSalesforceFlow"
 		processingStrategy="synchronous" initialState="started">
 		<poll doc:name="Poll">
 			<fixed-frequency-scheduler frequency="${polling.frequency}"
@@ -34,7 +34,7 @@ lastQueryDateA = f.parse(lastQueryDateA);
 		<batch:execute name="syncBatch" doc:name="trigger batch execution" />
 	</flow>
 
-	<flow name="triggerSyncFromBFlow" doc:name="triggerSyncFromBFlow"
+	<flow name="triggerSyncFromDbFlow" doc:name="triggerSyncFromDbFlow"
 		processingStrategy="synchronous" initialState="started">
 		<poll doc:name="Poll">
 			<fixed-frequency-scheduler frequency="${polling.frequency}"

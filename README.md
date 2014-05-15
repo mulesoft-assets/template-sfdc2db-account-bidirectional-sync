@@ -24,21 +24,21 @@ As a Salesforce admin, I want to have my accounts synchronized between Salesforc
 
 ## Template overview <a name="templateoverview"/>
 
-Let's say we want to keep Salesforce instance *A* synchronized with Database instance *B*. Then, the integration behavior can be summarized just with the following steps:
+Let's say we want to keep Salesforce instance synchronized with Database instance. Then, the integration behavior can be summarized just with the following steps:
 
-1. Ask Salesforce *A*:
+1. Ask Salesforce:
 > *Which changes have there been since the last time I got in touch with you?*
 
-2. For each of the updates fetched in the previous step (1.), ask Database *B*:
-> *Does the update received from A should be applied?*
+2. For each of the updates fetched in the previous step (1.), ask Database:
+> *Does the update received from Salesforce should be applied?*
 
-3. If Database answer for the previous question (2.) is *Yes*, then *upsert* (create or update depending each particular case) B with the belonging change
+3. If Database answer for the previous question (2.) is *Yes*, then *upsert* (create or update depending each particular case) Database with the belonging change
 
-4. Repeat previous steps (1. to 3.) the other way around (using *B* as source instance and *A* as the target one)
+4. Repeat previous steps (1. to 3.) the other way around (using Database as source instance and Salesforce as the target one)
 
  Repeat *ad infinitum*:
 
-5. Ask Salesforce *A*:
+5. Ask Salesforce:
 > *Which changes have there been since the question I've made in the step 1.?*
 
 And so on...
@@ -68,17 +68,18 @@ This are the milliseconds (also different time units can be used) that will run 
 + watermark.default.expression `2014-02-25T11:00:00.000Z`  
 This property is an important one, as it configures what should be the start point of the synchronization.The date format accepted in SFDC Query Language is either *YYYY-MM-DDThh:mm:ss+hh:mm* or you can use Constants. [More information about Dates in SFDC][3]
 
-### SalesForce Connector configuration for company A
+### SalesForce Connector configuration
 + sfdc.username `jorge.drexler@mail.com`
 + sfdc.password `Noctiluca123`
 + sfdc.securityToken `avsfwCUl7apQs56Xq2AKi3X`
 + sfdc.url `https://login.salesforce.com/services/Soap/u/28.0`
 + sfdc.integration.user.id `005n0000000T3QkAAK`
 
-### Database Connector configuration for company B
+### Database Connector configuration
 + database.url=jdbc:mysql://192.168.224.130:3306/mule?user=mule&password=mule
 + db.integration.user.id=mule@localhost
- 
+
+If it is required to connect to a different Database there should be provided the jar for the library and changed the value of that field in the connector.
 
 ## Running on premise <a name="runonopremise"/>
 

@@ -29,7 +29,7 @@ payload['LastModifiedDate'] = f.parse(payload['LastModifiedDate']);
 				<enricher
 					source="#[payload.isEmpty() ? NullPayload.getInstance() : payload[0]]"
 					target="#[recordVars['accountInTargetInstance']]" doc:name="store account">
-					<db:select config-ref="GenericDatabaseConnector" doc:name="query account from B">
+					<db:select config-ref="GenericDatabaseConnector" doc:name="query account from Database">
                         <db:parameterized-query><![CDATA[SELECT * FROM Account WHERE Name = #[payload['Name']]]]></db:parameterized-query>
 					</db:select>
 				</enricher>
@@ -186,7 +186,7 @@ if(!(payload['SalesforceId'] == null)) {
 ]]></expression-component>
 				<batch:commit size="200" doc:name="Batch Commit">
 					<sfdc:upsert config-ref="Salesforce"
-						externalIdFieldName="Id" type="Account" doc:name="upsert account in A">
+						externalIdFieldName="Id" type="Account" doc:name="upsert account in Salesforce">
 						<sfdc:objects ref="#[payload]" />
 					</sfdc:upsert>
 					<logger message="Upsert Salesforce A response: #[payload]"
