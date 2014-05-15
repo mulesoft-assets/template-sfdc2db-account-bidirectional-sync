@@ -42,7 +42,7 @@ lastQueryDateA = f.parse(lastQueryDateA);
 			<watermark variable="lastQueryDateB" default-expression="${watermark.default.expression}"
 				selector="MAX" selector-expression="#[payload.LastModifiedDate]" />
 			<db:select config-ref="GenericDatabaseConnector" doc:name="fetch accounts from B">
-                <db:parameterized-query><![CDATA[SELECT SalesforceId, Name, AccountNumber, AccountSource, AccountCurrency, AnnualRevenue, BillingCity, BillingCountry, BillingPostalCode, BillingState, BillingStreet, Description, Fax, Industry, LastModifiedDate, NumberOfEmployees, Ownership, Phone, Rating, ShippingCity, ShippingCountry, ShippingPostalCode, ShippingState, ShippingStreet, Sic, SicDesc, Site, TickerSymbol, Type, Website FROM Account WHERE LastModifiedDate > #[flowVars['lastQueryDateB']] ORDER BY LastModifiedDate ASC]]></db:parameterized-query>
+                <db:parameterized-query><![CDATA[SELECT SalesforceId, Name, AccountNumber, AccountSource, AccountCurrency, AnnualRevenue, BillingCity, BillingCountry, BillingPostalCode, BillingState, BillingStreet, Description, Fax, Industry, LastModifiedById, LastModifiedDate, NumberOfEmployees, Ownership, Phone, Rating, ShippingCity, ShippingCountry, ShippingPostalCode, ShippingState, ShippingStreet, Sic, SicDesc, Site, TickerSymbol, Type, Website FROM Account WHERE LastModifiedDate > #[flowVars['lastQueryDateB']] ORDER BY LastModifiedDate ASC]]></db:parameterized-query>
 			</db:select>
 		</poll>
 		<set-variable variableName="sourceSystem" value="B"

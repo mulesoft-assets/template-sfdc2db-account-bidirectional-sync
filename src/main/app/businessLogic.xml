@@ -160,7 +160,7 @@ WHERE Name = #[payload['Name']]]]></db:parameterized-query>
 				<enricher source="#[payload]" target="#[recordVars['accountInTargetInstance']]" doc:name="store account">
 					<processor-chain doc:name="Processor Chain">
 						<sfdc:query-single config-ref="Salesforce"
-							query="SELECT Id, Name, LastModifiedDate, NumberOfEmployees FROM Account WHERE (Name = '#[payload['Name']]')" doc:name="query account from A" />
+							query="SELECT Id, Name, LastModifiedById, LastModifiedDate, NumberOfEmployees FROM Account WHERE (Name = '#[payload['Name']]')" doc:name="query account from A" />
                         <expression-component doc:name="Expression"><![CDATA[if (!(payload is NullPayload)) {
 	f = new java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
 	f.setTimeZone(TimeZone.getTimeZone("UTC"));
