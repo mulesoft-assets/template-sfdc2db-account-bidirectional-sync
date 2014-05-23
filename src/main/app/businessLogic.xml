@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:tracking="http://www.mulesoft.org/schema/mule/ee/tracking"
+<mule xmlns:data-mapper="http://www.mulesoft.org/schema/mule/ee/data-mapper" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:tracking="http://www.mulesoft.org/schema/mule/ee/tracking"
       xmlns="http://www.mulesoft.org/schema/mule/core"
       xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
       xmlns:spring="http://www.springframework.org/schema/beans"
@@ -15,13 +15,17 @@ http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/cu
 http://www.mulesoft.org/schema/mule/sfdc http://www.mulesoft.org/schema/mule/sfdc/current/mule-sfdc.xsd
 http://www.mulesoft.org/schema/mule/batch http://www.mulesoft.org/schema/mule/batch/current/mule-batch.xsd
 http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/mule/ee/tracking/current/mule-tracking-ee.xsd
-http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/ee/data-mapper http://www.mulesoft.org/schema/mule/ee/data-mapper/current/mule-data-mapper.xsd">
+    <data-mapper:config name="Account_To_Account" transformationGraphPath="account_to_account.grf" doc:name="Account_To_Account"/>
+    <data-mapper:config name="Account_To_Account_1" transformationGraphPath="account_to_account_1.grf" doc:name="Account_To_Account_1"/>
+    <data-mapper:config name="Account_To_Account_1Account_To_Account_2" transformationGraphPath="account_to_account_2.grf" doc:name="Account_To_Account_1Account_To_Account_2"/>
 
 	<batch:job name="syncBatch">
 		<batch:threading-profile poolExhaustedAction="WAIT" />
 		<batch:process-records>
 
-			<batch:step name="getAccountInBStep" filter-expression="#['B'.equals(flowVars['sourceSystem'])]">
+			<batch:step name="getAccountInBStep" accept-expression="#['A'.equals(flowVars['sourceSystem'])]">
 				<expression-component doc:name="convert LastModifiedDate to Date"><![CDATA[f = new java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
 f.setTimeZone(TimeZone.getTimeZone("UTC"));
 payload['LastModifiedDate'] = f.parse(payload['LastModifiedDate']);
@@ -31,6 +35,7 @@ payload['LastModifiedDate'] = f.parse(payload['LastModifiedDate']);
 					target="#[recordVars['accountInTargetInstance']]" doc:name="store account">
 					<db:select config-ref="GenericDatabaseConnector" doc:name="query account from Database">
                         <db:parameterized-query><![CDATA[SELECT * FROM Account WHERE Name = #[payload['Name']]]]></db:parameterized-query>
+
 					</db:select>
 				</enricher>
 				<expression-component doc:name="prepare account for upsert"><![CDATA[payload.remove('LastModifiedById');
@@ -38,8 +43,8 @@ payload.remove('LastModifiedDate');
 ]]></expression-component>
 			</batch:step>
 
-			<batch:step name="upsertAccountInBStep"
-				filter-expression="#['B'.equals(flowVars['sourceSystem']) || recordVars['accountInTargetInstance'] is NullPayload || recordVars['accountInTargetInstance']['LastModifiedDate'] &gt;= payload['LastModifiedDate'] || '${sfdc.integration.user.id}' == payload.get('LastModifiedById')]">
+			<batch:step name="upsertAccountInBStep" accept-expression="#['A'.equals(flowVars['sourceSystem']) &amp;&amp; !(recordVars['accountInTargetInstance'] is NullPayload) &amp;&amp; recordVars['accountInTargetInstance']['LastModifiedDate'] &lt; payload['LastModifiedDate'] &amp;&amp; '${sfdc.integration.user.id}' != payload.get('LastModifiedById')]">
+                <data-mapper:transform config-ref="Account_To_Account" doc:name="Account To Account"/>
 				<batch:commit size="200" doc:name="Batch Commit">
 					<db:update config-ref="GenericDatabaseConnector" bulkMode="true"
 						doc:name="update accounts in Database">
@@ -75,13 +80,14 @@ payload.remove('LastModifiedDate');
 	LastModifiedById = CURRENT_USER,
 	LastModifiedDate = CURRENT_TIMESTAMP
 WHERE Name = #[payload['Name']]]]></db:parameterized-query>
+
 					</db:update>
 					<logger message="Update Database B response: #[payload]"
 						level="INFO" doc:name="log response" />
 				</batch:commit>
 			</batch:step>
-			<batch:step name="insertAccountsToBStep"
-				filter-expression="#['B'.equals(flowVars['sourceSystem']) || !(recordVars['accountInTargetInstance'] is NullPayload)]">
+			<batch:step name="insertAccountsToBStep" accept-expression="#['A'.equals(flowVars['sourceSystem']) &amp;&amp; recordVars['accountInTargetInstance'] is NullPayload]">
+                <data-mapper:transform config-ref="Account_To_Account_1Account_To_Account_2" doc:name="Account To Account"/>
 				<batch:commit size="200" doc:name="Batch Commit">
 					<db:insert config-ref="GenericDatabaseConnector" bulkMode="true"
 						doc:name="insert accounts to Database">
@@ -152,11 +158,12 @@ WHERE Name = #[payload['Name']]]]></db:parameterized-query>
 	CURRENT_USER,
 	CURRENT_TIMESTAMP
 )]]></db:parameterized-query>
+
 					</db:insert>
 					<logger message="Insert Database B response: #[payload]"	level="INFO" doc:name="log response" />
 				</batch:commit>
 			</batch:step>
-			<batch:step name="getAccountInAStep" filter-expression="#['A'.equals(flowVars['sourceSystem'])]">
+			<batch:step name="getAccountInAStep" accept-expression="#['B'.equals(flowVars['sourceSystem'])]">
 				<enricher source="#[payload]" target="#[recordVars['accountInTargetInstance']]" doc:name="store account">
 					<processor-chain doc:name="Processor Chain">
 						<sfdc:query-single config-ref="Salesforce"
@@ -170,8 +177,8 @@ WHERE Name = #[payload['Name']]]]></db:parameterized-query>
 				</enricher>
 			</batch:step>
 
-			<batch:step name="upsertAccountInAStep"
-				filter-expression="#[('A'.equals(flowVars['sourceSystem'])) || (recordVars['accountInTargetInstance'] is NullPayload ? false : (recordVars['accountInTargetInstance']['LastModifiedDate'] &gt;= payload['LastModifiedDate']) || ('${db.integration.user.id}' == payload.get('LastModifiedById')))]">
+			<batch:step name="upsertAccountInAStep" accept-expression="#['B'.equals(flowVars['sourceSystem']) &amp;&amp; (recordVars['accountInTargetInstance'] is NullPayload || (recordVars['accountInTargetInstance']['LastModifiedDate'] &lt; payload['LastModifiedDate'] &amp;&amp; '${db.integration.user.id}' != payload.get('LastModifiedById')))]">
+                <data-mapper:transform config-ref="Account_To_Account_1" doc:name="Account To Account"/>
 				<expression-component doc:name="prepare account for upsert"><![CDATA[if(!(payload['NumberOfEmployees'] == null)) {
 	payload.put('NumberOfEmployees', Integer.parseInt(payload['NumberOfEmployees']));
 }

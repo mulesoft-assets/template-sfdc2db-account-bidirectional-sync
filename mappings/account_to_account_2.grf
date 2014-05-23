@@ -1,0 +1,275 @@
+<?xml version="1.0" encoding="UTF-8"?><Graph __version="3.5.0" author="Marek" created="Wed May 21 15:44:50 CEST 2014" description="Account To Account" guiVersion="3.4.3.P" id="1400846105588" licenseCode="Unlicensed" licenseType="Unknown" modified="Wed May 21 15:44:50 CEST 2014" modifiedBy="Marek" name="Account_To_Account_1Account_To_Account_2" revision="1.0" showComponentDetails="false">
+<Global>
+<Metadata __index="0" __referenceCounter="1" __sourcePath="{}/Account" _dataStructure="OBJECT" _id="__id" _type="Input" id="d74b9ae5-ace1-4817-8441-37dedc8e41f9">
+<Record fieldDelimiter="," name="Account" recordDelimiter="\n\\|\r\n\\|\r" type="delimited">
+<Field __artificialType="_id" __systemManaged="true" name="__id" type="string"/>
+<Field __implementationClass="java.lang.String" __index="29" __sourcePath="{}/Account/AccountNumber" containerType="SINGLE" label="AccountNumber" name="AccountNumber" type="string"/>
+<Field __index="2" __sourcePath="{}/Account/AccountSource" containerType="SINGLE" label="AccountSource" name="AccountSource" type="string"/>
+<Field __index="33" __sourcePath="{}/Account/Active_x005f_x005fc" containerType="SINGLE" label="Active__c" name="Active__c" type="string"/>
+<Field __implementationClass="java.lang.String" __index="12" __sourcePath="{}/Account/AnnualRevenue" containerType="SINGLE" label="AnnualRevenue" name="AnnualRevenue" type="string"/>
+<Field __implementationClass="java.lang.String" __index="37" __sourcePath="{}/Account/BillingCity" containerType="SINGLE" label="BillingCity" name="BillingCity" type="string"/>
+<Field __implementationClass="java.lang.String" __index="23" __sourcePath="{}/Account/BillingCountry" containerType="SINGLE" label="BillingCountry" name="BillingCountry" type="string"/>
+<Field __implementationClass="java.lang.String" __index="17" __sourcePath="{}/Account/BillingPostalCode" containerType="SINGLE" label="BillingPostalCode" name="BillingPostalCode" type="string"/>
+<Field __implementationClass="java.lang.String" __index="13" __sourcePath="{}/Account/BillingState" containerType="SINGLE" label="BillingState" name="BillingState" type="string"/>
+<Field __implementationClass="java.lang.String" __index="31" __sourcePath="{}/Account/BillingStreet" containerType="SINGLE" label="BillingStreet" name="BillingStreet" type="string"/>
+<Field __implementationClass="java.lang.String" __index="39" __sourcePath="{}/Account/CreatedById" containerType="SINGLE" label="CreatedById" name="CreatedById" type="string"/>
+<Field __dmType="Calendar" __implementationClass="java.util.Calendar" __index="40" __sourcePath="{}/Account/CreatedDate" containerType="SINGLE" label="CreatedDate" name="CreatedDate" type="string"/>
+<Field __index="34" __sourcePath="{}/Account/CustomerPriority_x005f_x005fc" containerType="SINGLE" label="CustomerPriority__c" name="CustomerPriority__c" type="string"/>
+<Field __implementationClass="java.lang.String" __index="22" __sourcePath="{}/Account/Description" containerType="SINGLE" label="Description" name="Description" type="string"/>
+<Field __implementationClass="java.lang.String" __index="30" __sourcePath="{}/Account/Fax" containerType="SINGLE" label="Fax" name="Fax" type="string"/>
+<Field __implementationClass="java.lang.String" __index="43" __sourcePath="{}/Account/Id" containerType="SINGLE" label="Id" name="Id" type="string"/>
+<Field __index="47" __sourcePath="{}/Account/Industry" containerType="SINGLE" label="Industry" name="Industry" type="string"/>
+<Field __implementationClass="java.lang.Boolean" __index="41" __sourcePath="{}/Account/IsDeleted" containerType="SINGLE" label="IsDeleted" name="IsDeleted" type="boolean"/>
+<Field __implementationClass="java.lang.String" __index="21" __sourcePath="{}/Account/Jigsaw" containerType="SINGLE" label="Jigsaw" name="Jigsaw" type="string"/>
+<Field __implementationClass="java.lang.String" __index="42" __sourcePath="{}/Account/JigsawCompanyId" containerType="SINGLE" label="JigsawCompanyId" name="JigsawCompanyId" type="string"/>
+<Field __dmType="Calendar" __implementationClass="java.util.Calendar" __index="15" __sourcePath="{}/Account/LastActivityDate" containerType="SINGLE" label="LastActivityDate" name="LastActivityDate" type="string"/>
+<Field __implementationClass="java.lang.String" __index="26" __sourcePath="{}/Account/LastModifiedById" containerType="SINGLE" label="LastModifiedById" name="LastModifiedById" type="string"/>
+<Field __dmType="Calendar" __implementationClass="java.util.Calendar" __index="10" __sourcePath="{}/Account/LastModifiedDate" containerType="SINGLE" label="LastModifiedDate" name="LastModifiedDate" type="string"/>
+<Field __implementationClass="java.lang.String" __index="35" __sourcePath="{}/Account/MasterRecordId" containerType="SINGLE" label="MasterRecordId" name="MasterRecordId" type="string"/>
+<Field __implementationClass="java.lang.String" __index="36" __sourcePath="{}/Account/Name" containerType="SINGLE" label="Name" name="Name" type="string"/>
+<Field __implementationClass="java.lang.Integer" __index="16" __sourcePath="{}/Account/NumberOfEmployees" containerType="SINGLE" label="NumberOfEmployees" name="NumberOfEmployees" type="integer"/>
+<Field __implementationClass="java.lang.Double" __index="14" __sourcePath="{}/Account/NumberofLocations_x005f_x005fc" containerType="SINGLE" label="NumberofLocations__c" name="NumberofLocations__c" type="number"/>
+<Field __implementationClass="java.lang.String" __index="8" __sourcePath="{}/Account/OwnerId" containerType="SINGLE" label="OwnerId" name="OwnerId" type="string"/>
+<Field __index="44" __sourcePath="{}/Account/Ownership" containerType="SINGLE" label="Ownership" name="Ownership" type="string"/>
+<Field __implementationClass="java.lang.String" __index="3" __sourcePath="{}/Account/ParentId" containerType="SINGLE" label="ParentId" name="ParentId" type="string"/>
+<Field __implementationClass="java.lang.String" __index="4" __sourcePath="{}/Account/Phone" containerType="SINGLE" label="Phone" name="Phone" type="string"/>
+<Field __index="38" __sourcePath="{}/Account/Rating" containerType="SINGLE" label="Rating" name="Rating" type="string"/>
+<Field __dmType="Calendar" __implementationClass="java.util.Calendar" __index="6" __sourcePath="{}/Account/SLAExpirationDate_x005f_x005fc" containerType="SINGLE" label="SLAExpirationDate__c" name="SLAExpirationDate__c" type="string"/>
+<Field __implementationClass="java.lang.String" __index="18" __sourcePath="{}/Account/SLASerialNumber_x005f_x005fc" containerType="SINGLE" label="SLASerialNumber__c" name="SLASerialNumber__c" type="string"/>
+<Field __index="32" __sourcePath="{}/Account/SLA_x005f_x005fc" containerType="SINGLE" label="SLA__c" name="SLA__c" type="string"/>
+<Field __implementationClass="java.lang.String" __index="20" __sourcePath="{}/Account/ShippingCity" containerType="SINGLE" label="ShippingCity" name="ShippingCity" type="string"/>
+<Field __implementationClass="java.lang.String" __index="25" __sourcePath="{}/Account/ShippingCountry" containerType="SINGLE" label="ShippingCountry" name="ShippingCountry" type="string"/>
+<Field __implementationClass="java.lang.String" __index="45" __sourcePath="{}/Account/ShippingPostalCode" containerType="SINGLE" label="ShippingPostalCode" name="ShippingPostalCode" type="string"/>
+<Field __implementationClass="java.lang.String" __index="11" __sourcePath="{}/Account/ShippingState" containerType="SINGLE" label="ShippingState" name="ShippingState" type="string"/>
+<Field __implementationClass="java.lang.String" __index="28" __sourcePath="{}/Account/ShippingStreet" containerType="SINGLE" label="ShippingStreet" name="ShippingStreet" type="string"/>
+<Field __implementationClass="java.lang.String" __index="46" __sourcePath="{}/Account/Sic" containerType="SINGLE" label="Sic" name="Sic" type="string"/>
+<Field __implementationClass="java.lang.String" __index="0" __sourcePath="{}/Account/SicDesc" containerType="SINGLE" label="SicDesc" name="SicDesc" type="string"/>
+<Field __implementationClass="java.lang.String" __index="24" __sourcePath="{}/Account/Site" containerType="SINGLE" label="Site" name="Site" type="string"/>
+<Field __dmType="Calendar" __implementationClass="java.util.Calendar" __index="19" __sourcePath="{}/Account/SystemModstamp" containerType="SINGLE" label="SystemModstamp" name="SystemModstamp" type="string"/>
+<Field __implementationClass="java.lang.String" __index="5" __sourcePath="{}/Account/TickerSymbol" containerType="SINGLE" label="TickerSymbol" name="TickerSymbol" type="string"/>
+<Field __index="7" __sourcePath="{}/Account/Type" containerType="SINGLE" label="Type" name="Type" type="string"/>
+<Field __index="1" __sourcePath="{}/Account/UpsellOpportunity_x005f_x005fc" containerType="SINGLE" label="UpsellOpportunity__c" name="UpsellOpportunity__c" type="string"/>
+<Field __implementationClass="java.lang.String" __index="9" __sourcePath="{}/Account/VeritixAccount_x005f_x005fc" containerType="SINGLE" label="VeritixAccount__c" name="VeritixAccount__c" type="string"/>
+<Field __implementationClass="java.lang.String" __index="27" __sourcePath="{}/Account/Website" containerType="SINGLE" label="Website" name="Website" type="string"/>
+</Record>
+</Metadata>
+<Metadata __index="0" __referenceCounter="1" __sourcePath="{}/Account" _dataStructure="OBJECT" _id="__id" _type="Output" id="d0a52344-618f-4ed5-adcd-4359a1b97f60">
+<Record fieldDelimiter="," name="Account" recordDelimiter="\n\\|\r\n\\|\r" type="delimited">
+<Field __artificialType="_id" __systemManaged="true" name="__id" type="string"/>
+<Field __implementationClass="java.lang.String" __index="29" __sourcePath="{}/Account/AccountNumber" containerType="SINGLE" label="AccountNumber" name="AccountNumber" type="string"/>
+<Field __index="2" __sourcePath="{}/Account/AccountSource" containerType="SINGLE" label="AccountSource" name="AccountSource" type="string"/>
+<Field __index="33" __sourcePath="{}/Account/Active_x005f_x005fc" containerType="SINGLE" label="Active__c" name="Active__c" type="string"/>
+<Field __implementationClass="java.lang.String" __index="12" __sourcePath="{}/Account/AnnualRevenue" containerType="SINGLE" label="AnnualRevenue" name="AnnualRevenue" type="string"/>
+<Field __implementationClass="java.lang.String" __index="37" __sourcePath="{}/Account/BillingCity" containerType="SINGLE" label="BillingCity" name="BillingCity" type="string"/>
+<Field __implementationClass="java.lang.String" __index="23" __sourcePath="{}/Account/BillingCountry" containerType="SINGLE" label="BillingCountry" name="BillingCountry" type="string"/>
+<Field __implementationClass="java.lang.String" __index="17" __sourcePath="{}/Account/BillingPostalCode" containerType="SINGLE" label="BillingPostalCode" name="BillingPostalCode" type="string"/>
+<Field __implementationClass="java.lang.String" __index="13" __sourcePath="{}/Account/BillingState" containerType="SINGLE" label="BillingState" name="BillingState" type="string"/>
+<Field __implementationClass="java.lang.String" __index="31" __sourcePath="{}/Account/BillingStreet" containerType="SINGLE" label="BillingStreet" name="BillingStreet" type="string"/>
+<Field __implementationClass="java.lang.String" __index="39" __sourcePath="{}/Account/CreatedById" containerType="SINGLE" label="CreatedById" name="CreatedById" type="string"/>
+<Field __dmType="Calendar" __implementationClass="java.util.Calendar" __index="40" __sourcePath="{}/Account/CreatedDate" containerType="SINGLE" label="CreatedDate" name="CreatedDate" type="string"/>
+<Field __index="34" __sourcePath="{}/Account/CustomerPriority_x005f_x005fc" containerType="SINGLE" label="CustomerPriority__c" name="CustomerPriority__c" type="string"/>
+<Field __implementationClass="java.lang.String" __index="22" __sourcePath="{}/Account/Description" containerType="SINGLE" label="Description" name="Description" type="string"/>
+<Field __implementationClass="java.lang.String" __index="30" __sourcePath="{}/Account/Fax" containerType="SINGLE" label="Fax" name="Fax" type="string"/>
+<Field __implementationClass="java.lang.String" __index="43" __sourcePath="{}/Account/Id" containerType="SINGLE" label="Id" name="Id" type="string"/>
+<Field __index="47" __sourcePath="{}/Account/Industry" containerType="SINGLE" label="Industry" name="Industry" type="string"/>
+<Field __implementationClass="java.lang.Boolean" __index="41" __sourcePath="{}/Account/IsDeleted" containerType="SINGLE" label="IsDeleted" name="IsDeleted" type="boolean"/>
+<Field __implementationClass="java.lang.String" __index="21" __sourcePath="{}/Account/Jigsaw" containerType="SINGLE" label="Jigsaw" name="Jigsaw" type="string"/>
+<Field __implementationClass="java.lang.String" __index="42" __sourcePath="{}/Account/JigsawCompanyId" containerType="SINGLE" label="JigsawCompanyId" name="JigsawCompanyId" type="string"/>
+<Field __dmType="Calendar" __implementationClass="java.util.Calendar" __index="15" __sourcePath="{}/Account/LastActivityDate" containerType="SINGLE" label="LastActivityDate" name="LastActivityDate" type="string"/>
+<Field __implementationClass="java.lang.String" __index="26" __sourcePath="{}/Account/LastModifiedById" containerType="SINGLE" label="LastModifiedById" name="LastModifiedById" type="string"/>
+<Field __dmType="Calendar" __implementationClass="java.util.Calendar" __index="10" __sourcePath="{}/Account/LastModifiedDate" containerType="SINGLE" label="LastModifiedDate" name="LastModifiedDate" type="string"/>
+<Field __implementationClass="java.lang.String" __index="35" __sourcePath="{}/Account/MasterRecordId" containerType="SINGLE" label="MasterRecordId" name="MasterRecordId" type="string"/>
+<Field __implementationClass="java.lang.String" __index="36" __sourcePath="{}/Account/Name" containerType="SINGLE" label="Name" name="Name" type="string"/>
+<Field __implementationClass="java.lang.Integer" __index="16" __sourcePath="{}/Account/NumberOfEmployees" containerType="SINGLE" label="NumberOfEmployees" name="NumberOfEmployees" type="integer"/>
+<Field __implementationClass="java.lang.Double" __index="14" __sourcePath="{}/Account/NumberofLocations_x005f_x005fc" containerType="SINGLE" label="NumberofLocations__c" name="NumberofLocations__c" type="number"/>
+<Field __implementationClass="java.lang.String" __index="8" __sourcePath="{}/Account/OwnerId" containerType="SINGLE" label="OwnerId" name="OwnerId" type="string"/>
+<Field __index="44" __sourcePath="{}/Account/Ownership" containerType="SINGLE" label="Ownership" name="Ownership" type="string"/>
+<Field __implementationClass="java.lang.String" __index="3" __sourcePath="{}/Account/ParentId" containerType="SINGLE" label="ParentId" name="ParentId" type="string"/>
+<Field __implementationClass="java.lang.String" __index="4" __sourcePath="{}/Account/Phone" containerType="SINGLE" label="Phone" name="Phone" type="string"/>
+<Field __index="38" __sourcePath="{}/Account/Rating" containerType="SINGLE" label="Rating" name="Rating" type="string"/>
+<Field __dmType="Calendar" __implementationClass="java.util.Calendar" __index="6" __sourcePath="{}/Account/SLAExpirationDate_x005f_x005fc" containerType="SINGLE" label="SLAExpirationDate__c" name="SLAExpirationDate__c" type="string"/>
+<Field __implementationClass="java.lang.String" __index="18" __sourcePath="{}/Account/SLASerialNumber_x005f_x005fc" containerType="SINGLE" label="SLASerialNumber__c" name="SLASerialNumber__c" type="string"/>
+<Field __index="32" __sourcePath="{}/Account/SLA_x005f_x005fc" containerType="SINGLE" label="SLA__c" name="SLA__c" type="string"/>
+<Field __implementationClass="java.lang.String" __index="20" __sourcePath="{}/Account/ShippingCity" containerType="SINGLE" label="ShippingCity" name="ShippingCity" type="string"/>
+<Field __implementationClass="java.lang.String" __index="25" __sourcePath="{}/Account/ShippingCountry" containerType="SINGLE" label="ShippingCountry" name="ShippingCountry" type="string"/>
+<Field __implementationClass="java.lang.String" __index="45" __sourcePath="{}/Account/ShippingPostalCode" containerType="SINGLE" label="ShippingPostalCode" name="ShippingPostalCode" type="string"/>
+<Field __implementationClass="java.lang.String" __index="11" __sourcePath="{}/Account/ShippingState" containerType="SINGLE" label="ShippingState" name="ShippingState" type="string"/>
+<Field __implementationClass="java.lang.String" __index="28" __sourcePath="{}/Account/ShippingStreet" containerType="SINGLE" label="ShippingStreet" name="ShippingStreet" type="string"/>
+<Field __implementationClass="java.lang.String" __index="46" __sourcePath="{}/Account/Sic" containerType="SINGLE" label="Sic" name="Sic" type="string"/>
+<Field __implementationClass="java.lang.String" __index="0" __sourcePath="{}/Account/SicDesc" containerType="SINGLE" label="SicDesc" name="SicDesc" type="string"/>
+<Field __implementationClass="java.lang.String" __index="24" __sourcePath="{}/Account/Site" containerType="SINGLE" label="Site" name="Site" type="string"/>
+<Field __dmType="Calendar" __implementationClass="java.util.Calendar" __index="19" __sourcePath="{}/Account/SystemModstamp" containerType="SINGLE" label="SystemModstamp" name="SystemModstamp" type="string"/>
+<Field __implementationClass="java.lang.String" __index="5" __sourcePath="{}/Account/TickerSymbol" containerType="SINGLE" label="TickerSymbol" name="TickerSymbol" type="string"/>
+<Field __index="7" __sourcePath="{}/Account/Type" containerType="SINGLE" label="Type" name="Type" type="string"/>
+<Field __index="1" __sourcePath="{}/Account/UpsellOpportunity_x005f_x005fc" containerType="SINGLE" label="UpsellOpportunity__c" name="UpsellOpportunity__c" type="string"/>
+<Field __implementationClass="java.lang.String" __index="9" __sourcePath="{}/Account/VeritixAccount_x005f_x005fc" containerType="SINGLE" label="VeritixAccount__c" name="VeritixAccount__c" type="string"/>
+<Field __implementationClass="java.lang.String" __index="27" __sourcePath="{}/Account/Website" containerType="SINGLE" label="Website" name="Website" type="string"/>
+</Record>
+</Metadata>
+<Dictionary>
+<Entry id="DictionaryEntry0" input="true" name="inputPayload" output="false" type="object"/>
+<Entry id="DictionaryEntry1" input="false" name="outputPayload" output="true" type="object"/>
+</Dictionary>
+</Global>
+<Phase number="0">
+<Node enabled="enabled" fileURL="dict:inputPayload" guiName="Map&lt;k,v&gt; READER" guiX="20" guiY="20" id="BEAN_READER0" type="BEAN_READER">
+<attr name="mapping"><![CDATA[<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<Context outPort="0" sequenceField="__id" xpath=".">
+  <Mapping cloverField="AccountNumber" trim="true" xpath="AccountNumber"/>
+  <Mapping cloverField="AccountSource" trim="true" xpath="AccountSource"/>
+  <Mapping cloverField="Active__c" trim="true" xpath="Active_x005f_x005fc"/>
+  <Mapping cloverField="AnnualRevenue" trim="true" xpath="AnnualRevenue"/>
+  <Mapping cloverField="BillingCity" trim="true" xpath="BillingCity"/>
+  <Mapping cloverField="BillingCountry" trim="true" xpath="BillingCountry"/>
+  <Mapping cloverField="BillingPostalCode" trim="true" xpath="BillingPostalCode"/>
+  <Mapping cloverField="BillingState" trim="true" xpath="BillingState"/>
+  <Mapping cloverField="BillingStreet" trim="true" xpath="BillingStreet"/>
+  <Mapping cloverField="CreatedById" trim="true" xpath="CreatedById"/>
+  <Mapping cloverField="CreatedDate" trim="true" xpath="CreatedDate"/>
+  <Mapping cloverField="CustomerPriority__c" trim="true" xpath="CustomerPriority_x005f_x005fc"/>
+  <Mapping cloverField="Description" trim="true" xpath="Description"/>
+  <Mapping cloverField="Fax" trim="true" xpath="Fax"/>
+  <Mapping cloverField="Id" trim="true" xpath="Id"/>
+  <Mapping cloverField="Industry" trim="true" xpath="Industry"/>
+  <Mapping cloverField="IsDeleted" trim="true" xpath="IsDeleted"/>
+  <Mapping cloverField="Jigsaw" trim="true" xpath="Jigsaw"/>
+  <Mapping cloverField="JigsawCompanyId" trim="true" xpath="JigsawCompanyId"/>
+  <Mapping cloverField="LastActivityDate" trim="true" xpath="LastActivityDate"/>
+  <Mapping cloverField="LastModifiedById" trim="true" xpath="LastModifiedById"/>
+  <Mapping cloverField="LastModifiedDate" trim="true" xpath="LastModifiedDate"/>
+  <Mapping cloverField="MasterRecordId" trim="true" xpath="MasterRecordId"/>
+  <Mapping cloverField="Name" trim="true" xpath="Name"/>
+  <Mapping cloverField="NumberOfEmployees" trim="true" xpath="NumberOfEmployees"/>
+  <Mapping cloverField="NumberofLocations__c" trim="true" xpath="NumberofLocations_x005f_x005fc"/>
+  <Mapping cloverField="OwnerId" trim="true" xpath="OwnerId"/>
+  <Mapping cloverField="Ownership" trim="true" xpath="Ownership"/>
+  <Mapping cloverField="ParentId" trim="true" xpath="ParentId"/>
+  <Mapping cloverField="Phone" trim="true" xpath="Phone"/>
+  <Mapping cloverField="Rating" trim="true" xpath="Rating"/>
+  <Mapping cloverField="SLAExpirationDate__c" trim="true" xpath="SLAExpirationDate_x005f_x005fc"/>
+  <Mapping cloverField="SLASerialNumber__c" trim="true" xpath="SLASerialNumber_x005f_x005fc"/>
+  <Mapping cloverField="SLA__c" trim="true" xpath="SLA_x005f_x005fc"/>
+  <Mapping cloverField="ShippingCity" trim="true" xpath="ShippingCity"/>
+  <Mapping cloverField="ShippingCountry" trim="true" xpath="ShippingCountry"/>
+  <Mapping cloverField="ShippingPostalCode" trim="true" xpath="ShippingPostalCode"/>
+  <Mapping cloverField="ShippingState" trim="true" xpath="ShippingState"/>
+  <Mapping cloverField="ShippingStreet" trim="true" xpath="ShippingStreet"/>
+  <Mapping cloverField="Sic" trim="true" xpath="Sic"/>
+  <Mapping cloverField="SicDesc" trim="true" xpath="SicDesc"/>
+  <Mapping cloverField="Site" trim="true" xpath="Site"/>
+  <Mapping cloverField="SystemModstamp" trim="true" xpath="SystemModstamp"/>
+  <Mapping cloverField="TickerSymbol" trim="true" xpath="TickerSymbol"/>
+  <Mapping cloverField="Type" trim="true" xpath="Type"/>
+  <Mapping cloverField="UpsellOpportunity__c" trim="true" xpath="UpsellOpportunity_x005f_x005fc"/>
+  <Mapping cloverField="VeritixAccount__c" trim="true" xpath="VeritixAccount_x005f_x005fc"/>
+  <Mapping cloverField="Website" trim="true" xpath="Website"/>
+</Context>
+]]></attr>
+<attr name="__typeName"><![CDATA[Account]]></attr>
+<attr name="_data_format"><![CDATA[MAP]]></attr>
+<attr name="__connectorName"><![CDATA[Salesforce]]></attr>
+</Node>
+<Node enabled="enabled" guiName="Foreach 'Account' -&gt; 'Account'" guiX="460" guiY="20" id="FOREACH_ACCOUNT_ACCOUNT" transformClass="com.mulesoft.datamapper.transform.MelRecordTransform" type="REFORMAT">
+<attr name="melScript"><![CDATA[//MEL
+output.AccountNumber = input.AccountNumber;
+output.AccountSource = input.AccountSource;
+output.Active__c = input.Active__c;
+output.AnnualRevenue = input.AnnualRevenue;
+output.BillingCity = input.BillingCity;
+output.BillingCountry = input.BillingCountry;
+output.BillingPostalCode = input.BillingPostalCode;
+output.BillingState = input.BillingState;
+output.BillingStreet = input.BillingStreet;
+output.CreatedById = input.CreatedById;
+output.CustomerPriority__c = input.CustomerPriority__c;
+output.Description = input.Description;
+output.Fax = input.Fax;
+output.Id = input.Id;
+output.Industry = input.Industry;
+output.Jigsaw = input.Jigsaw;
+output.JigsawCompanyId = input.JigsawCompanyId;
+output.LastModifiedById = input.LastModifiedById;
+output.MasterRecordId = input.MasterRecordId;
+output.Name = input.Name;
+output.NumberOfEmployees = input.NumberOfEmployees;
+output.NumberofLocations__c = input.NumberofLocations__c;
+output.OwnerId = input.OwnerId;
+output.Ownership = input.Ownership;
+output.ParentId = input.ParentId;
+output.Phone = input.Phone;
+output.Rating = input.Rating;
+output.SLAExpirationDate__c = input.SLAExpirationDate__c;
+output.SLASerialNumber__c = input.SLASerialNumber__c;
+output.SLA__c = input.SLA__c;
+output.ShippingCity = input.ShippingCity;
+output.ShippingCountry = input.ShippingCountry;
+output.ShippingPostalCode = input.ShippingPostalCode;
+output.ShippingState = input.ShippingState;
+output.ShippingStreet = input.ShippingStreet;
+output.Sic = input.Sic;
+output.SicDesc = input.SicDesc;
+output.Site = input.Site;
+output.TickerSymbol = input.TickerSymbol;
+output.Type = input.Type;
+output.Website = input.Website;]]></attr>
+</Node>
+<Node cacheInMemory="true" enabled="enabled" fileURL="dict:outputPayload" guiName="Map&lt;k,v&gt; WRITER" guiX="900" guiY="20" id="MAP_WRITER0" type="MAP_WRITER">
+<attr name="mapping"><![CDATA[<?xml version="1.0" encoding="UTF-8"?>
+<Account xmlns:clover="http://www.cloveretl.com/ns/xmlmapping" clover:inPort="0">
+  <SicDesc clover:dataType="java.lang.String">$0.SicDesc</SicDesc>
+  <clover:element clover:name="UpsellOpportunity__c">$0.UpsellOpportunity__c</clover:element>
+  <AccountSource>$0.AccountSource</AccountSource>
+  <ParentId clover:dataType="java.lang.String">$0.ParentId</ParentId>
+  <Phone clover:dataType="java.lang.String">$0.Phone</Phone>
+  <TickerSymbol clover:dataType="java.lang.String">$0.TickerSymbol</TickerSymbol>
+  <clover:element clover:name="SLAExpirationDate__c" clover:dataType="java.util.Calendar">$0.SLAExpirationDate__c</clover:element>
+  <Type>$0.Type</Type>
+  <OwnerId clover:dataType="java.lang.String">$0.OwnerId</OwnerId>
+  <clover:element clover:name="VeritixAccount__c" clover:dataType="java.lang.String">$0.VeritixAccount__c</clover:element>
+  <LastModifiedDate clover:dataType="java.util.Calendar">$0.LastModifiedDate</LastModifiedDate>
+  <ShippingState clover:dataType="java.lang.String">$0.ShippingState</ShippingState>
+  <AnnualRevenue clover:dataType="java.lang.String">$0.AnnualRevenue</AnnualRevenue>
+  <BillingState clover:dataType="java.lang.String">$0.BillingState</BillingState>
+  <clover:element clover:name="NumberofLocations__c" clover:dataType="java.lang.Double">$0.NumberofLocations__c</clover:element>
+  <LastActivityDate clover:dataType="java.util.Calendar">$0.LastActivityDate</LastActivityDate>
+  <NumberOfEmployees clover:dataType="java.lang.Integer">$0.NumberOfEmployees</NumberOfEmployees>
+  <BillingPostalCode clover:dataType="java.lang.String">$0.BillingPostalCode</BillingPostalCode>
+  <clover:element clover:name="SLASerialNumber__c" clover:dataType="java.lang.String">$0.SLASerialNumber__c</clover:element>
+  <SystemModstamp clover:dataType="java.util.Calendar">$0.SystemModstamp</SystemModstamp>
+  <ShippingCity clover:dataType="java.lang.String">$0.ShippingCity</ShippingCity>
+  <Jigsaw clover:dataType="java.lang.String">$0.Jigsaw</Jigsaw>
+  <Description clover:dataType="java.lang.String">$0.Description</Description>
+  <BillingCountry clover:dataType="java.lang.String">$0.BillingCountry</BillingCountry>
+  <Site clover:dataType="java.lang.String">$0.Site</Site>
+  <ShippingCountry clover:dataType="java.lang.String">$0.ShippingCountry</ShippingCountry>
+  <LastModifiedById clover:dataType="java.lang.String">$0.LastModifiedById</LastModifiedById>
+  <Website clover:dataType="java.lang.String">$0.Website</Website>
+  <ShippingStreet clover:dataType="java.lang.String">$0.ShippingStreet</ShippingStreet>
+  <AccountNumber clover:dataType="java.lang.String">$0.AccountNumber</AccountNumber>
+  <Fax clover:dataType="java.lang.String">$0.Fax</Fax>
+  <BillingStreet clover:dataType="java.lang.String">$0.BillingStreet</BillingStreet>
+  <clover:element clover:name="SLA__c">$0.SLA__c</clover:element>
+  <clover:element clover:name="Active__c">$0.Active__c</clover:element>
+  <clover:element clover:name="CustomerPriority__c">$0.CustomerPriority__c</clover:element>
+  <MasterRecordId clover:dataType="java.lang.String">$0.MasterRecordId</MasterRecordId>
+  <Name clover:dataType="java.lang.String">$0.Name</Name>
+  <BillingCity clover:dataType="java.lang.String">$0.BillingCity</BillingCity>
+  <Rating>$0.Rating</Rating>
+  <CreatedById clover:dataType="java.lang.String">$0.CreatedById</CreatedById>
+  <CreatedDate clover:dataType="java.util.Calendar">$0.CreatedDate</CreatedDate>
+  <IsDeleted clover:dataType="java.lang.Boolean">$0.IsDeleted</IsDeleted>
+  <JigsawCompanyId clover:dataType="java.lang.String">$0.JigsawCompanyId</JigsawCompanyId>
+  <Id clover:dataType="java.lang.String">$0.Id</Id>
+  <Ownership>$0.Ownership</Ownership>
+  <ShippingPostalCode clover:dataType="java.lang.String">$0.ShippingPostalCode</ShippingPostalCode>
+  <Sic clover:dataType="java.lang.String">$0.Sic</Sic>
+  <Industry>$0.Industry</Industry>
+</Account>]]></attr>
+<attr name="__typeName"><![CDATA[Account]]></attr>
+<attr name="_data_format"><![CDATA[MAP]]></attr>
+<attr name="__connectorName"><![CDATA[Salesforce]]></attr>
+</Node>
+<Edge debugMode="true" fromNode="BEAN_READER0:0" guiBendpoints="" id="Edge0" inPort="Port 0 (in)" metadata="d74b9ae5-ace1-4817-8441-37dedc8e41f9" outPort="Port 0 (out)" toNode="FOREACH_ACCOUNT_ACCOUNT:0"/>
+<Edge debugMode="true" fromNode="FOREACH_ACCOUNT_ACCOUNT:0" guiBendpoints="" id="Edge1" inPort="Port 0 (in)" metadata="d0a52344-618f-4ed5-adcd-4359a1b97f60" outPort="Port 0 (out)" toNode="MAP_WRITER0:0"/>
+</Phase>
+</Graph>
