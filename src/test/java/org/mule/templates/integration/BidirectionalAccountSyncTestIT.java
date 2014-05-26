@@ -38,13 +38,13 @@ public class BidirectionalAccountSyncTestIT extends AbstractTemplateTestCase {
 	private static final String B_INBOUND_FLOW_NAME = "triggerSyncFromBFlow";
 	private static final int TIMEOUT_MILLIS = 60;
 
-	private SubflowInterceptingChainLifecycleWrapper updateAccountInAFlow;
-	private SubflowInterceptingChainLifecycleWrapper updateAccountInBFlow;
-	private InterceptingChainLifecycleWrapper queryAccountFromAFlow;
-	private InterceptingChainLifecycleWrapper queryAccountFromBFlow;
+	private SubflowInterceptingChainLifecycleWrapper updateAccountInSalesforceFlow;
+	private SubflowInterceptingChainLifecycleWrapper updateAccountInDatabaseFlow;
+	private InterceptingChainLifecycleWrapper queryAccountFromSalesforceFlow;
+	private InterceptingChainLifecycleWrapper queryAccountFromDatabaseFlow;
 	private BatchTestHelper batchTestHelper;
 
-	private List<Map<String, Object>> createdAccountsInB = new ArrayList<Map<String, Object>>();
+	private List<Map<String, Object>> createdAccountsInDatabase = new ArrayList<Map<String, Object>>();
 
 	@BeforeClass
 	public static void beforeTestClass() {
@@ -70,8 +70,8 @@ public class BidirectionalAccountSyncTestIT extends AbstractTemplateTestCase {
 
 	@After
 	public void tearDown() throws Exception {
-		deleteTestAccountsFromSandBoxA(createdAccountsInB);
-		deleteTestAccountsFromSandBoxB(createdAccountsInB);
+		deleteTestAccountsFromSandBoxA(createdAccountsInDatabase);
+		deleteTestAccountsFromSandBoxB(createdAccountsInDatabase);
 	}
 
 	private void stopAutomaticPollTriggering() throws MuleException {
@@ -81,70 +81,70 @@ public class BidirectionalAccountSyncTestIT extends AbstractTemplateTestCase {
 
 	private void getAndInitializeFlows() throws InitialisationException {
 		// Flow for updating a Account in A instance
-		updateAccountInAFlow = getSubFlow("updateAccountInAFlow");
-		updateAccountInAFlow.initialise();
+		updateAccountInSalesforceFlow = getSubFlow("updateAccountInSalesforceFlow");
+		updateAccountInSalesforceFlow.initialise();
 
 		// Flow for updating a Account in B instance
-		updateAccountInBFlow = getSubFlow("updateAccountInBFlow");
-		updateAccountInBFlow.initialise();
+		updateAccountInDatabaseFlow = getSubFlow("updateAccountInDatabaseFlow");
+		updateAccountInDatabaseFlow.initialise();
 
 		// Flow for querying the Account in A instance
-		queryAccountFromAFlow = getSubFlow("queryAccountFromAFlow");
-		queryAccountFromAFlow.initialise();
+		queryAccountFromSalesforceFlow = getSubFlow("queryAccountFromSalesforceFlow");
+		queryAccountFromSalesforceFlow.initialise();
 
 		// Flow for querying the Account in B instance
-		queryAccountFromBFlow = getSubFlow("queryAccountFromBFlow");
-		queryAccountFromBFlow.initialise();
+		queryAccountFromDatabaseFlow = getSubFlow("queryAccountFromDatabaseFlow");
+		queryAccountFromDatabaseFlow.initialise();
 	}
 
 	@Test
-	public void whenUpdatingAnAccountInInstanceBTheBelongingAccountGetsUpdatedInInstanceA() throws MuleException, Exception {
-		Map<String, Object> user_0_B = new HashMap<String, Object>();
-		user_0_B.put("AccountNumber", "123321");
-		user_0_B.put("AccountSource", "AccountSource");
-		user_0_B.put("AnnualRevenue", "11000");
-		user_0_B.put("BillingCity", "San Francisco");
-		user_0_B.put("BillingCountry", "USA");
-		user_0_B.put("BillingPostalCode", "94108");
-		user_0_B.put("BillingState", "California");
-		user_0_B.put("BillingStreet", "77 Geary Street");
-		user_0_B.put("Description", "Description");
-		user_0_B.put("Fax", "(415) 888-112233");
-		user_0_B.put("Industry", "Ecommerce");
-		user_0_B.put("Name", buildUniqueName(TEMPLATE_NAME, "Test-"));
-		user_0_B.put("NumberOfEmployees", 289);
-		user_0_B.put("Phone", "(415) 888-1122");
-		user_0_B.put("Rating", "");
-		user_0_B.put("ShippingCity", "San Francisco");
-		user_0_B.put("ShippingCountry", "USA");
-		user_0_B.put("ShippingPostalCode", "94108");
-		user_0_B.put("ShippingState", "California");
-		user_0_B.put("ShippingStreet", "77 Geary Street");
-		user_0_B.put("Sic", "Sic");
-		user_0_B.put("SicDesc", "SicDesc");
-		user_0_B.put("Site", "www.mulsesoft.com");
-		user_0_B.put("TickerSymbol", "");
-		user_0_B.put("Type", "OEM");
-		user_0_B.put("Website", "www.mulsesoft.com");
+	public void whenUpdatingAnAccountInDatastoreTheBelongingAccountGetsUpdatedInSalesforce() throws MuleException, Exception {
+		Map<String, Object> accountDatabase = new HashMap<String, Object>();
+		accountDatabase.put("AccountNumber", "123321");
+		accountDatabase.put("AccountSource", "AccountSource");
+		accountDatabase.put("AnnualRevenue", "11000");
+		accountDatabase.put("BillingCity", "San Francisco");
+		accountDatabase.put("BillingCountry", "USA");
+		accountDatabase.put("BillingPostalCode", "94108");
+		accountDatabase.put("BillingState", "California");
+		accountDatabase.put("BillingStreet", "77 Geary Street");
+		accountDatabase.put("Description", "Description");
+		accountDatabase.put("Fax", "(415) 888-112233");
+		accountDatabase.put("Industry", "Ecommerce");
+		accountDatabase.put("Name", buildUniqueName(TEMPLATE_NAME, "Test-"));
+		accountDatabase.put("NumberOfEmployees", 289);
+		accountDatabase.put("Phone", "(415) 888-1122");
+		accountDatabase.put("Rating", "");
+		accountDatabase.put("ShippingCity", "San Francisco");
+		accountDatabase.put("ShippingCountry", "USA");
+		accountDatabase.put("ShippingPostalCode", "94108");
+		accountDatabase.put("ShippingState", "California");
+		accountDatabase.put("ShippingStreet", "77 Geary Street");
+		accountDatabase.put("Sic", "Sic");
+		accountDatabase.put("SicDesc", "SicDesc");
+		accountDatabase.put("Site", "www.mulsesoft.com");
+		accountDatabase.put("TickerSymbol", "");
+		accountDatabase.put("Type", "OEM");
+		accountDatabase.put("Website", "www.mulsesoft.com");
 
-		createdAccountsInB.add(user_0_B);
+		createdAccountsInDatabase.add(accountDatabase);
 		
-		SubflowInterceptingChainLifecycleWrapper createAccountInAFlow = getSubFlow("insertAccountInBFlow");
-		createAccountInAFlow.initialise();
+		SubflowInterceptingChainLifecycleWrapper createAccountInDatabaseFlow = getSubFlow("insertAccountInDatabaseFlow");
+		createAccountInDatabaseFlow.initialise();
 	
-		createAccountInAFlow.process(getTestEvent(Collections.singletonList(user_0_B), MessageExchangePattern.REQUEST_RESPONSE));
+		createAccountInDatabaseFlow.process(getTestEvent(Collections.singletonList(accountDatabase), MessageExchangePattern.REQUEST_RESPONSE));
 	
 		// Execution
 		executeWaitAndAssertBatchJob(B_INBOUND_FLOW_NAME);
 
 		// Assertions
-		Map<String, Object> payload = (Map<String, Object>) queryAccount(user_0_B, queryAccountFromBFlow);
+		Map<String, Object> payload = (Map<String, Object>) queryAccount(accountDatabase, queryAccountFromDatabaseFlow);
 		Assert.assertNotNull("Synchronized Account should not be null", payload);
-		Assert.assertEquals("The Account should have been sync and new Name must match", user_0_B.get("Name"), payload.get("Name"));
-		Assert.assertEquals("The Account should have been sync and new AccountNumber must match", user_0_B.get("AccountNumber"), payload.get("AccountNumber"));
-		Assert.assertEquals("The Account should have been sync and new BillingCity must match", user_0_B.get("BillingCity"), payload.get("BillingCity"));
-		Assert.assertEquals("The Account should have been sync and new Phone must match", user_0_B.get("Phone"), payload.get("Phone"));
-		Assert.assertEquals("The Account should have been sync and new NumberOfEmployees must match", user_0_B.get("NumberOfEmployees"), payload.get("NumberOfEmployees"));
+		Assert.assertEquals("The Account should have been sync and new Name must match", accountDatabase.get("Name"), payload.get("Name"));
+		Assert.assertEquals("The Account should have been sync and new AccountNumber must match", accountDatabase.get("AccountNumber"), payload.get("AccountNumber"));
+		Assert.assertEquals("The Account should have been sync and new BillingCity must match", accountDatabase.get("BillingCity"), payload.get("BillingCity"));
+		Assert.assertEquals("The Account should have been sync and new Phone must match", accountDatabase.get("Phone"), payload.get("Phone"));
+		Assert.assertEquals("The Account should have been sync and new NumberOfEmployees must match", accountDatabase.get("NumberOfEmployees"), payload.get("NumberOfEmployees"));
 }
 
 	private Object queryAccount(Map<String, Object> account, InterceptingChainLifecycleWrapper queryAccountFlow) throws MuleException, Exception {
@@ -161,32 +161,32 @@ public class BidirectionalAccountSyncTestIT extends AbstractTemplateTestCase {
 	}
 	
 	private void deleteTestAccountsFromSandBoxB(List<Map<String, Object>> createdAccountsInA) throws InitialisationException, MuleException, Exception {
-		SubflowInterceptingChainLifecycleWrapper deleteAccountFromBFlow = getSubFlow("deleteAccountFromBFlow");
-		deleteAccountFromBFlow.initialise();
+		SubflowInterceptingChainLifecycleWrapper deleteAccountFromDatabaseFlow = getSubFlow("deleteAccountFromDatabaseFlow");
+		deleteAccountFromDatabaseFlow.initialise();
 
 		List<String> idList = new ArrayList<String>();
 		for (Map<String, Object> c : createdAccountsInA) {
 			idList.add(c.get("Name").toString());
 		}
-		deleteAccountFromBFlow.process(getTestEvent(idList, MessageExchangePattern.REQUEST_RESPONSE));
+		deleteAccountFromDatabaseFlow.process(getTestEvent(idList, MessageExchangePattern.REQUEST_RESPONSE));
 }
 
 	private void deleteTestAccountsFromSandBoxA(List<Map<String, Object>> createdAccountsInB) throws InitialisationException, MuleException, Exception {
 		List<Map<String, Object>> createdAccountsInA = new ArrayList<Map<String, Object>>();
 		for (Map<String, Object> c : createdAccountsInB) {
-			Map<String, Object> account = invokeRetrieveFlow(queryAccountFromAFlow, c);
+			Map<String, Object> account = invokeRetrieveFlow(queryAccountFromSalesforceFlow, c);
 			if (account != null) {
 				createdAccountsInA.add(account);
 			}
 		}
-		SubflowInterceptingChainLifecycleWrapper deleteAccountFromAFlow = getSubFlow("deleteAccountFromAFlow");
-		deleteAccountFromAFlow.initialise();
+		SubflowInterceptingChainLifecycleWrapper deleteAccountFromSalesforceFlow = getSubFlow("deleteAccountFromSalesforceFlow");
+		deleteAccountFromSalesforceFlow.initialise();
 
 		List<String> idList = new ArrayList<String>();
 		for (Map<String, Object> c : createdAccountsInA) {
 			idList.add(c.get("Id").toString());
 		}
-		deleteAccountFromAFlow.process(getTestEvent(idList, MessageExchangePattern.REQUEST_RESPONSE));
+		deleteAccountFromSalesforceFlow.process(getTestEvent(idList, MessageExchangePattern.REQUEST_RESPONSE));
 }
 	
 	protected Map<String, Object> invokeRetrieveFlow(InterceptingChainLifecycleWrapper flow, Map<String, Object> payload) throws Exception {
