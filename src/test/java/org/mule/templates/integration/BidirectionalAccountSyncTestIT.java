@@ -1,6 +1,7 @@
 package org.mule.templates.integration;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -131,7 +132,7 @@ public class BidirectionalAccountSyncTestIT extends AbstractTemplateTestCase {
 		SubflowInterceptingChainLifecycleWrapper createAccountInAFlow = getSubFlow("insertAccountInBFlow");
 		createAccountInAFlow.initialise();
 	
-		createAccountInAFlow.process(getTestEvent(user_0_B, MessageExchangePattern.REQUEST_RESPONSE));
+		createAccountInAFlow.process(getTestEvent(Collections.singletonList(user_0_B), MessageExchangePattern.REQUEST_RESPONSE));
 	
 		// Execution
 		executeWaitAndAssertBatchJob(B_INBOUND_FLOW_NAME);
