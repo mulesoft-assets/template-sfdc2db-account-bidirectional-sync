@@ -13,8 +13,8 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
-		<mule.version>3.5.0-M4</mule.version>
-		<munit.version>3.5-M1</munit.version>
+		<mule.version>3.5.0</mule.version>
+		<munit.version>3.5-M2</munit.version>
 		<junit.version>4.9</junit.version>
 		<sfdc.version>5.4.3</sfdc.version>
 		
