@@ -38,8 +38,8 @@ payload['LastModifiedDate'] = f.parse(payload['LastModifiedDate']);
 
 					</db:select>
 				</enricher>
-				<expression-component doc:name="prepare account for upsert"><![CDATA[payload.remove('LastModifiedById');
-payload.remove('LastModifiedDate');
+				<expression-component doc:name="prepare account for upsert"><![CDATA[//payload.remove('LastModifiedById');
+//payload.remove('LastModifiedDate');
 ]]></expression-component>
 			</batch:step>
 
@@ -49,37 +49,14 @@ payload.remove('LastModifiedDate');
 					<db:update config-ref="GenericDatabaseConnector" bulkMode="true"
 						doc:name="update accounts in Database">
                         <db:parameterized-query><![CDATA[UPDATE Account SET
-	AccountNumber = #[payload['AccountNumber']],
-	AccountSource = #[payload['AccountSource']],
-	AnnualRevenue = #[payload['AnnualRevenue']],
-	BillingCity = #[payload['BillingCity']],
-	BillingCountry = #[payload['BillingCountry']],
-	BillingPostalCode = #[payload['BillingPostalCode']],
-	BillingState = #[payload['BillingState']],
-	BillingStreet = #[payload['BillingStreet']],
-	Description = #[payload['Description']],
-	Fax = #[payload['Fax']],
-	Industry = #[payload['Industry']],
-	NumberOfEmployees = #[payload['NumberOfEmployees']],
-	OwnerId = #[payload['OwnerId']],
-	Ownership = #[payload['Ownership']],
-	ParentId = #[payload['ParentId']],
-	Phone = #[payload['Phone']],
-	Rating = #[payload['Rating']],
-	ShippingCity = #[payload['ShippingCity']],
-	ShippingCountry = #[payload['ShippingCountry']],
-	ShippingPostalCode = #[payload['ShippingPostalCode']],
-	ShippingState = #[payload['ShippingState']],
-	ShippingStreet = #[payload['ShippingStreet']],
-	Sic = #[payload['Sic']],
-	SicDesc = #[payload['SicDesc']],
-	Site = #[payload['Site']],
-	TickerSymbol = #[payload['TickerSymbol']],
-	Type = #[payload['Type']],
-	Website = #[payload['Website']],
-	LastModifiedById = CURRENT_USER,
-	LastModifiedDate = CURRENT_TIMESTAMP
+AccountNumber = #[payload['AccountNumber']], 
+Description = #[payload['Description']],  
+NumberOfEmployees = #[payload['NumberOfEmployees']], 
+Phone = #[payload['Phone']], 
+Type = #[payload['Type']],	
+LastModifiedDate = CURRENT_TIMESTAMP
 WHERE Name = #[payload['Name']]]]></db:parameterized-query>
+
 
 					</db:update>
 					<logger message="Update Database B response: #[payload]"
@@ -92,72 +69,25 @@ WHERE Name = #[payload['Name']]]]></db:parameterized-query>
 					<db:insert config-ref="GenericDatabaseConnector" bulkMode="true"
 						doc:name="insert accounts to Database">
                         <db:parameterized-query><![CDATA[INSERT INTO Account (
-	SalesforceId,
 	AccountNumber,
-	AccountSource,
-	AnnualRevenue,
-	BillingCity,
-	BillingCountry,
-	BillingPostalCode,
-	BillingState,
-	BillingStreet,
 	Description,
-	Fax,
-	Industry,
 	Name,
 	NumberOfEmployees,
-	OwnerId,
-	Ownership,
-	ParentId,
 	Phone,
-	Rating,
-	ShippingCity,
-	ShippingCountry,
-	ShippingPostalCode,
-	ShippingState,
-	ShippingStreet,
-	Sic,
-	SicDesc,
-	Site,
-	TickerSymbol,
 	Type,
-	Website,
 	LastModifiedById,
 	LastModifiedDate
 ) VALUES (
-	#[payload['Id']],
 	#[payload['AccountNumber']],
-	#[payload['AccountSource']],
-	#[payload['AnnualRevenue']],
-	#[payload['BillingCity']],
-	#[payload['BillingCountry']],
-	#[payload['BillingPostalCode']],
-	#[payload['BillingState']],
-	#[payload['BillingStreet']],
 	#[payload['Description']],
-	#[payload['Fax']],
-	#[payload['Industry']],
 	#[payload['Name']],
 	#[payload['NumberOfEmployees']],
-	#[payload['OwnerId']],
-	#[payload['Ownership']],
-	#[payload['ParentId']],
 	#[payload['Phone']],
-	#[payload['Rating']],
-	#[payload['ShippingCity']],
-	#[payload['ShippingCountry']],
-	#[payload['ShippingPostalCode']],
-	#[payload['ShippingState']],
-	#[payload['ShippingStreet']],
-	#[payload['Sic']],
-	#[payload['SicDesc']],
-	#[payload['Site']],
-	#[payload['TickerSymbol']],
 	#[payload['Type']],
-	#[payload['Website']],
 	CURRENT_USER,
 	CURRENT_TIMESTAMP
 )]]></db:parameterized-query>
+
 
 					</db:insert>
 					<logger message="Insert Database B response: #[payload]"	level="INFO" doc:name="log response" />
