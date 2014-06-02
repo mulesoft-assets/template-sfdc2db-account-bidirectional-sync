@@ -1,7 +1,9 @@
 package org.mule.templates.util;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.Validate;
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
@@ -57,5 +59,50 @@ public class DateUtils {
 		DateTime lastModifiedDateOfB = formatter.parseDateTime(reformatZuluTimeZoneToOffsetIfNecesary(dateB));
 
 		return lastModifiedDateOfA.isAfter(lastModifiedDateOfB);
+	}
+	
+	
+	/**
+	 * The method will try to format a date string to match the ISO 8601.
+	 * 
+	 * Valid examples of that are:
+	 * 
+	 * - 2014-05-25T16:45:49+00:00
+	 * 
+	 * - 2014-05-25T16:45:49Z
+	 * 
+	 * If provided the method will use format to parse the provided date. If not
+	 * it will try with its default which matches the SQL format:
+	 * "yyyy-MM-dd HH:mm:ss.SSS".
+	 * 
+	 * If provided the method will set the time zone. If not it will infer that
+	 * the date has been provided in UTC.
+	 * 
+	 * @param date
+	 *            a string representing a date
+	 * @param format
+	 *            pattern to parse the provided date
+	 * @param timeZoneOffset
+	 *            time zone in the format (+|-)HH:mm
+	 * @return a date representing a string wiht the ISO 8601 format
+	 *         yyyy-MM-dd'T'HH:mm:ss.SSSZ
+	 */
+	public static String dateStringToISODateString(String date, String format, String timeZoneOffset) {
+		Validate.notEmpty(date, "The date should not be null or empty");
+
+		if (StringUtils.isEmpty(format)) {
+			// Defaulting to MySQL format
+			format = "yyyy-MM-dd HH:mm:ss.SSS";
+		}
+
+		if (StringUtils.isEmpty(timeZoneOffset)) {
+			// Defaulting same date as if it were UTC
+			timeZoneOffset = "+00:00";
+		}
+
+		DateTimeFormatter formatter = DateTimeFormat.forPattern(format);
+		DateTime dateTime = formatter.withZone(DateTimeZone.forID(timeZoneOffset)).parseDateTime(date);
+
+		return dateTime.toString();
 	}
 }

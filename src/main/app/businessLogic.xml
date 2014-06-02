@@ -21,28 +21,31 @@ http://www.mulesoft.org/schema/mule/ee/data-mapper http://www.mulesoft.org/schem
     <data-mapper:config name="Account_To_Account_1" transformationGraphPath="account_to_account_1.grf" doc:name="Account_To_Account_1"/>
     <data-mapper:config name="Account_To_Account_1Account_To_Account_2" transformationGraphPath="account_to_account_2.grf" doc:name="Account_To_Account_1Account_To_Account_2"/>
 
-	<batch:job name="syncBatch">
+	<batch:job name="syncAccountsBatch">
 		<batch:threading-profile poolExhaustedAction="WAIT" />
 		<batch:process-records>
 
-			<batch:step name="getAccountInBStep" accept-expression="#['A'.equals(flowVars['sourceSystem'])]">
+			<batch:step name="getAccountInDatabaseStep" accept-expression="#['Salesforce'.equals(flowVars['sourceSystem'])]">
 				<enricher
 					source="#[payload.isEmpty() ? NullPayload.getInstance() : payload[0]]"
-					target="#[recordVars['accountInTargetInstance']]" doc:name="store account">
-					<db:select config-ref="GenericDatabaseConnector" doc:name="query account from Database">
+					target="#[recordVars['accountInTargetInstance']]" doc:name="store result in record var 'accountInTargetInstance'">
+                    <db:select config-ref="GenericDatabaseConnector" doc:name="query account">
                         <db:parameterized-query><![CDATA[SELECT * FROM Account WHERE Name = #[payload['Name']]]]></db:parameterized-query>
-
-					</db:select>
+                    </db:select>
 				</enricher>
+                <logger message="*********************** Date A: #[org.mule.templates.util.DateUtils.dateStringToISODateString(payload['LastModifiedDate'], '${sfdc.date.format}', '${sfdc.date.offset}')]" level="INFO" doc:name="log Date A"/>
+                <logger message="*********************** Date B: #[org.mule.templates.util.DateUtils.dateStringToISODateString(recordVars['accountInTargetInstance']['LastModifiedDate'], '${database.date.format}', '${database.date.offset}')]" level="INFO" doc:name="log Date B"/>
+                <logger message="*********************** isAfter expression: #[org.mule.templates.util.DateUtils.isAfter(org.mule.templates.util.DateUtils.dateStringToISODateString(payload['LastModifiedDate'], '${sfdc.date.format}', '${sfdc.date.offset}'), org.mule.templates.util.DateUtils.dateStringToISODateString(recordVars['accountInTargetInstance']['LastModifiedDate'], '${database.date.format}', '${database.date.offset}'))]" level="INFO" doc:name="log isAfter expression"/>
+                <logger message="*********************** Complete expression: #[org.mule.templates.util.DateUtils.isAfter(org.mule.templates.util.DateUtils.dateStringToISODateString(payload['LastModifiedDate'], '${sfdc.date.format}', '${sfdc.date.offset}'), org.mule.templates.util.DateUtils.dateStringToISODateString(recordVars['accountInTargetInstance']['LastModifiedDate'], '${database.date.format}', '${database.date.offset}'))]" level="INFO" doc:name="log complete expression"/>
 			</batch:step>
 
-			<batch:step name="upsertAccountInBStep" accept-expression="#['A'.equals(flowVars['sourceSystem']) &amp;&amp; !(recordVars['accountInTargetInstance'] is NullPayload) &amp;&amp; recordVars['accountInTargetInstance']['LastModifiedDate'] &lt; payload['LastModifiedDate'] &amp;&amp; '${sfdc.integration.user.id}' != payload.get('LastModifiedById')]">
-                <expression-component doc:name="prepare account for upsert"><![CDATA[payload.remove('LastModifiedById');
+			<batch:step name="updateAccountInDatabaseStep" accept-expression="org.mule.templates.util.DateUtils.isAfter(org.mule.templates.util.DateUtils.dateStringToISODateString(payload['LastModifiedDate'], '${sfdc.date.format}', '${sfdc.date.offset}'), org.mule.templates.util.DateUtils.dateStringToISODateString(recordVars['accountInTargetInstance']['LastModifiedDate'], '${database.date.format}', '${database.date.offset}'))">
+                <expression-component doc:name="prepare account for update"><![CDATA[payload.remove('LastModifiedById');
 payload.remove('LastModifiedDate');]]></expression-component>
-                <data-mapper:transform config-ref="Account_To_Account" doc:name="transform Salesforce Account To database Account"/>
+                <data-mapper:transform config-ref="Account_To_Account" doc:name="transform Salesforce account to Database account"/>
 				<batch:commit size="200" doc:name="Batch Commit">
 					<db:update config-ref="GenericDatabaseConnector" bulkMode="true"
-						doc:name="update accounts in Database">
+						doc:name="update accounts">
                         <db:parameterized-query><![CDATA[UPDATE Account SET
 AccountNumber = #[payload['AccountNumber']], 
 Description = #[payload['Description']],  
@@ -54,18 +57,21 @@ WHERE Name = #[payload['Name']]]]></db:parameterized-query>
 
 
 					</db:update>
-					<logger message="Update Database B response: #[payload]"
+					<logger message="Update Database response: #[payload]"
 						level="INFO" doc:name="log response" />
 				</batch:commit>
 			</batch:step>
-			<batch:step name="insertAccountsToBStep" accept-expression="#['A'.equals(flowVars['sourceSystem']) &amp;&amp; recordVars['accountInTargetInstance'] is NullPayload]">
-                <expression-component doc:name="prepare account for upsert"><![CDATA[payload.remove('LastModifiedById');
+            <batch:step name="Batch_Step" accept-policy="ALL">
+                <logger message="AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA" level="INFO" doc:name="Logger"/>
+            </batch:step>
+			<batch:step name="insertAccountsInDatabaseStep" accept-expression="#['Salesforce'.equals(flowVars['sourceSystem']) &amp;&amp; recordVars['accountInTargetInstance'] is NullPayload]">
+                <expression-component doc:name="prepare account for insert"><![CDATA[payload.remove('LastModifiedById');
 payload.remove('LastModifiedDate');
 ]]></expression-component>
-                <data-mapper:transform config-ref="Account_To_Account_1Account_To_Account_2" doc:name="transform Salesforce Account To database Account"/>
+                <data-mapper:transform config-ref="Account_To_Account_1Account_To_Account_2" doc:name="transform Salesforce account to database account"/>
 				<batch:commit size="200" doc:name="Batch Commit">
 					<db:insert config-ref="GenericDatabaseConnector" bulkMode="true"
-						doc:name="insert accounts to Database">
+						doc:name="insert accounts">
                         <db:parameterized-query><![CDATA[INSERT INTO Account (
 	AccountNumber,
 	Description,
@@ -88,25 +94,17 @@ payload.remove('LastModifiedDate');
 
 
 					</db:insert>
-					<logger message="Insert Database B response: #[payload]"	level="INFO" doc:name="log response" />
+					<logger message="Insert Database response: #[payload]"	level="INFO" doc:name="log response" />
 				</batch:commit>
 			</batch:step>
-			<batch:step name="getAccountInAStep" accept-expression="#['B'.equals(flowVars['sourceSystem'])]">
-				<enricher source="#[payload]" target="#[recordVars['accountInTargetInstance']]" doc:name="store account">
-					<processor-chain doc:name="Processor Chain">
-						<sfdc:query-single config-ref="Salesforce"
-							query="SELECT Id, Name, LastModifiedById, LastModifiedDate, NumberOfEmployees FROM Account WHERE (Name = '#[payload['Name']]')" doc:name="query account from A" />
-                        <expression-component doc:name="Expression"><![CDATA[if (!(payload is NullPayload)) {
-	f = new java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
-	f.setTimeZone(TimeZone.getTimeZone("UTC"));
-	payload['LastModifiedDate'] = f.parse(payload['LastModifiedDate']);
-}]]></expression-component>
-					</processor-chain>
+			<batch:step name="getAccountInSalesforceStep" accept-expression="#['Database'.equals(flowVars['sourceSystem'])]">
+				<enricher source="#[payload]" target="#[recordVars['accountInTargetInstance']]" doc:name="store result in record var 'accountInTargetInstance'">
+                    <sfdc:query-single config-ref="Salesforce" query="SELECT Id, Name, LastModifiedById, LastModifiedDate, NumberOfEmployees FROM Account WHERE (Name = '#[payload['Name']]')" doc:name="query account"/>
 				</enricher>
 			</batch:step>
 
-			<batch:step name="upsertAccountInAStep" accept-expression="#['B'.equals(flowVars['sourceSystem']) &amp;&amp; (recordVars['accountInTargetInstance'] is NullPayload || (recordVars['accountInTargetInstance']['LastModifiedDate'] &lt; payload['LastModifiedDate'] &amp;&amp; '${db.integration.user.id}' != payload.get('LastModifiedById')))]">
-                <data-mapper:transform config-ref="Account_To_Account_1" doc:name="transform database Account To Salesforce Account"/>
+			<batch:step name="upsertAccountInSalesforceStep" accept-expression="#['Database'.equals(flowVars['sourceSystem']) &amp;&amp; (recordVars['accountInTargetInstance'] is NullPayload || (recordVars['accountInTargetInstance']['LastModifiedDate'] &lt; payload['LastModifiedDate'] &amp;&amp; '${db.integration.user.id}' != payload.get('LastModifiedById')))]">
+                <data-mapper:transform config-ref="Account_To_Account_1" doc:name="transform Database account to Salesforce account"/>
 				<expression-component doc:name="prepare account for upsert"><![CDATA[if(!(payload['NumberOfEmployees'] == null)) {
 	payload.put('NumberOfEmployees', Integer.parseInt(payload['NumberOfEmployees']));
 }
@@ -121,7 +119,7 @@ if(!(payload['SalesforceId'] == null)) {
 ]]></expression-component>
 				<batch:commit size="200" doc:name="Batch Commit">
 					<sfdc:upsert config-ref="Salesforce"
-						externalIdFieldName="Id" type="Account" doc:name="upsert account in Salesforce">
+						externalIdFieldName="Id" type="Account" doc:name="upsert account">
 						<sfdc:objects ref="#[payload]" />
 					</sfdc:upsert>
 					<logger message="Upsert Salesforce A response: #[payload]"
