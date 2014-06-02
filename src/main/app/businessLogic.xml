@@ -38,12 +38,11 @@ payload['LastModifiedDate'] = f.parse(payload['LastModifiedDate']);
 
 					</db:select>
 				</enricher>
-				<expression-component doc:name="prepare account for upsert"><![CDATA[//payload.remove('LastModifiedById');
-//payload.remove('LastModifiedDate');
-]]></expression-component>
 			</batch:step>
 
 			<batch:step name="upsertAccountInBStep" accept-expression="#['A'.equals(flowVars['sourceSystem']) &amp;&amp; !(recordVars['accountInTargetInstance'] is NullPayload) &amp;&amp; recordVars['accountInTargetInstance']['LastModifiedDate'] &lt; payload['LastModifiedDate'] &amp;&amp; '${sfdc.integration.user.id}' != payload.get('LastModifiedById')]">
+                <expression-component doc:name="prepare account for upsert"><![CDATA[payload.remove('LastModifiedById');
+payload.remove('LastModifiedDate');]]></expression-component>
                 <data-mapper:transform config-ref="Account_To_Account" doc:name="transform Salesforce Account To database Account"/>
 				<batch:commit size="200" doc:name="Batch Commit">
 					<db:update config-ref="GenericDatabaseConnector" bulkMode="true"
@@ -64,6 +63,9 @@ WHERE Name = #[payload['Name']]]]></db:parameterized-query>
 				</batch:commit>
 			</batch:step>
 			<batch:step name="insertAccountsToBStep" accept-expression="#['A'.equals(flowVars['sourceSystem']) &amp;&amp; recordVars['accountInTargetInstance'] is NullPayload]">
+                <expression-component doc:name="prepare account for upsert"><![CDATA[payload.remove('LastModifiedById');
+payload.remove('LastModifiedDate');
+]]></expression-component>
                 <data-mapper:transform config-ref="Account_To_Account_1Account_To_Account_2" doc:name="transform Salesforce Account To database Account"/>
 				<batch:commit size="200" doc:name="Batch Commit">
 					<db:insert config-ref="GenericDatabaseConnector" bulkMode="true"
