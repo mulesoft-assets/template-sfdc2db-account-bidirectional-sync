@@ -25,10 +25,6 @@ http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/cu
 				query="dsql:SELECT AccountNumber, AccountSource, AnnualRevenue, BillingCity, BillingCountry, BillingPostalCode, BillingState, BillingStreet, Description, Fax, Id, Industry, LastModifiedById, LastModifiedDate, Name, NumberOfEmployees, OwnerId, Ownership, ParentId, Phone, Rating, ShippingCity, ShippingCountry, ShippingPostalCode, ShippingState, ShippingStreet, Sic, SicDesc, Site, TickerSymbol, Type, Website FROM Account WHERE LastModifiedDate &gt; #[flowVars['lastQueryDateA']] ORDER BY LastModifiedDate ASC LIMIT 200"
 				doc:name="fetch accounts from A" />
 		</poll>
-		<expression-component doc:name="convert lastQueryDateA to Date"><![CDATA[f = new java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
-f.setTimeZone(TimeZone.getTimeZone("UTC"));
-lastQueryDateA = f.parse(lastQueryDateA);
-]]></expression-component>
 		<set-variable variableName="sourceSystem" value="A"
 			doc:name="set A as source system" />
 		<batch:execute name="syncBatch" doc:name="trigger batch execution" />
