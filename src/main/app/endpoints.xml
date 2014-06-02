@@ -19,31 +19,31 @@ http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/cu
 		<poll doc:name="Poll">
 			<fixed-frequency-scheduler frequency="${polling.frequency}"
 				startDelay="1000" />
-			<watermark variable="lastQueryDateA" default-expression="${watermark.default.expression}"
+			<watermark variable="lastQueryDateA" default-expression="${sfdc.watermark.default.expression}"
 				selector="MAX" selector-expression="#[payload.LastModifiedDate]" />
 			<sfdc:query config-ref="Salesforce"
 				query="dsql:SELECT AccountNumber, AccountSource, AnnualRevenue, BillingCity, BillingCountry, BillingPostalCode, BillingState, BillingStreet, Description, Fax, Id, Industry, LastModifiedById, LastModifiedDate, Name, NumberOfEmployees, OwnerId, Ownership, ParentId, Phone, Rating, ShippingCity, ShippingCountry, ShippingPostalCode, ShippingState, ShippingStreet, Sic, SicDesc, Site, TickerSymbol, Type, Website FROM Account WHERE LastModifiedDate &gt; #[flowVars['lastQueryDateA']] ORDER BY LastModifiedDate ASC LIMIT 200"
-				doc:name="fetch accounts from A" />
+				doc:name="fetch accounts from Salesforce" />
 		</poll>
-		<set-variable variableName="sourceSystem" value="A"
-			doc:name="set A as source system" />
-		<batch:execute name="syncBatch" doc:name="trigger batch execution" />
+		<set-variable variableName="sourceSystem" value="Salesforce"
+			doc:name="set 'Salesforce' as source system" />
+		<batch:execute name="syncAccountsBatch" doc:name="trigger batch execution" />
 	</flow>
 
-	<flow name="triggerSyncFromDbFlow" doc:name="triggerSyncFromDbFlow"
+	<flow name="triggerSyncFromDatabaseFlow" doc:name="triggerSyncFromDatabaseFlow"
 		processingStrategy="synchronous" initialState="started">
 		<poll doc:name="Poll">
 			<fixed-frequency-scheduler frequency="${polling.frequency}"
 				startDelay="1000" />
-			<watermark variable="lastQueryDateB" default-expression="${watermark.default.expression}"
+			<watermark variable="lastQueryDateB" default-expression="${database.watermark.default.expression}"
 				selector="MAX" selector-expression="#[payload.LastModifiedDate]" />
-			<db:select config-ref="GenericDatabaseConnector" doc:name="fetch accounts from B">
+			<db:select config-ref="GenericDatabaseConnector" doc:name="fetch accounts from Database">
                 <db:parameterized-query><![CDATA[SELECT SalesforceId, Name, AccountNumber, Description, LastModifiedById, LastModifiedDate, NumberOfEmployees, Phone, Type FROM Account WHERE LastModifiedDate > #[flowVars['lastQueryDateB']] ORDER BY LastModifiedDate ASC]]></db:parameterized-query>
 
 			</db:select>
 		</poll>
-		<set-variable variableName="sourceSystem" value="B"
-			doc:name="set B as source system" />
-		<batch:execute name="syncBatch" doc:name="trigger batch execution" />
+		<set-variable variableName="sourceSystem" value="Database"
+			doc:name="set 'Database' as source system" />
+		<batch:execute name="syncAccountsBatch" doc:name="trigger batch execution" />
 	</flow>
 </mule>
