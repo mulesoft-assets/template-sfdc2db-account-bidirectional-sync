@@ -26,10 +26,6 @@ http://www.mulesoft.org/schema/mule/ee/data-mapper http://www.mulesoft.org/schem
 		<batch:process-records>
 
 			<batch:step name="getAccountInBStep" accept-expression="#['A'.equals(flowVars['sourceSystem'])]">
-				<expression-component doc:name="convert LastModifiedDate to Date"><![CDATA[f = new java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
-f.setTimeZone(TimeZone.getTimeZone("UTC"));
-payload['LastModifiedDate'] = f.parse(payload['LastModifiedDate']);
-]]></expression-component>
 				<enricher
 					source="#[payload.isEmpty() ? NullPayload.getInstance() : payload[0]]"
 					target="#[recordVars['accountInTargetInstance']]" doc:name="store account">
