@@ -2,6 +2,7 @@ package org.mule.templates.integration;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -21,8 +22,8 @@ import org.mule.api.MuleException;
 import org.mule.api.lifecycle.InitialisationException;
 import org.mule.processor.chain.InterceptingChainLifecycleWrapper;
 import org.mule.processor.chain.SubflowInterceptingChainLifecycleWrapper;
+import org.mule.templates.db.MySQLDbCreator;
 import org.mule.transport.NullPayload;
-import org.mule.util.UUID;
 
 import com.mulesoft.module.batch.BatchTestHelper;
 
@@ -43,6 +44,11 @@ public class BidirectionalAccountSyncTestIT extends AbstractTemplateTestCase {
 	private InterceptingChainLifecycleWrapper queryAccountFromSalesforceFlow;
 	private InterceptingChainLifecycleWrapper queryAccountFromDatabaseFlow;
 	private BatchTestHelper batchTestHelper;
+	
+	private static final String PATH_TO_TEST_PROPERTIES = "./src/test/resources/mule.test.properties";
+	private static final String PATH_TO_SQL_SCRIPT = "src/main/resources/account.sql";
+	private static final String DATABASE_NAME = "SFDC2DBAccountBiDir" + new Long(new Date().getTime()).toString();
+	private static final MySQLDbCreator DBCREATOR = new MySQLDbCreator(DATABASE_NAME, PATH_TO_SQL_SCRIPT, PATH_TO_TEST_PROPERTIES);
 
 	private List<Map<String, Object>> createdAccountsInDatabase = new ArrayList<Map<String, Object>>();
 
@@ -58,13 +64,15 @@ public class BidirectionalAccountSyncTestIT extends AbstractTemplateTestCase {
 		DateTime now = new DateTime(DateTimeZone.UTC);
 		DateTimeFormatter dateFormat = DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
 		System.setProperty("watermark.default.expression", now.toString(dateFormat));
+		
+		System.setProperty("database.url", DBCREATOR.getDatabaseUrlWithName());
+		DBCREATOR.setUpDatabase();
 	}
 
 	@Before
 	public void setUp() throws MuleException {
 		stopAutomaticPollTriggering();
 		getAndInitializeFlows();
-
 		batchTestHelper = new BatchTestHelper(muleContext);
 	}
 
@@ -72,6 +80,7 @@ public class BidirectionalAccountSyncTestIT extends AbstractTemplateTestCase {
 	public void tearDown() throws Exception {
 		deleteTestAccountsFromSandBoxA(createdAccountsInDatabase);
 		deleteTestAccountsFromSandBoxB(createdAccountsInDatabase);
+		DBCREATOR.tearDownDataBase();
 	}
 
 	private void stopAutomaticPollTriggering() throws MuleException {

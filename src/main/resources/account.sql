@@ -1,26 +1,3 @@
-/*
- Navicat Premium Data Transfer
-
- Source Server         : Turnkey MySQL
- Source Server Type    : MySQL
- Source Server Version : 50173
- Source Host           : 192.168.224.130
- Source Database       : mule
-
- Target Server Type    : MySQL
- Target Server Version : 50173
- File Encoding         : utf-8
-
- Date: 05/11/2014 14:32:32 PM
-*/
-
-SET NAMES utf8;
-SET FOREIGN_KEY_CHECKS = 0;
-
--- ----------------------------
---  Table structure for `Account`
--- ----------------------------
-DROP TABLE IF EXISTS `Account`;
 CREATE TABLE `Account` (
   `ID` int(10) NOT NULL AUTO_INCREMENT,
   `AccountNumber` varchar(100) COLLATE utf8_slovak_ci DEFAULT NULL,
