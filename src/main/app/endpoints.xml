@@ -31,7 +31,7 @@ http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/cu
 	</flow>
 
 	<flow name="triggerSyncFromDatabaseFlow" doc:name="triggerSyncFromDatabaseFlow"
-		processingStrategy="synchronous" initialState="started">
+		processingStrategy="synchronous" initialState="stopped">
 		<poll doc:name="Poll">
 			<fixed-frequency-scheduler frequency="${polling.frequency}"
 				startDelay="1000" />
