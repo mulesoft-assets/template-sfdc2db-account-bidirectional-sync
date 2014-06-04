@@ -33,13 +33,12 @@ http://www.mulesoft.org/schema/mule/ee/data-mapper http://www.mulesoft.org/schem
                         <db:parameterized-query><![CDATA[SELECT * FROM Account WHERE Name = #[payload['Name']]]]></db:parameterized-query>
                     </db:select>
 				</enricher>
-                <logger message="*********************** Date A: #[org.mule.templates.util.DateUtils.dateStringToISODateString(payload['LastModifiedDate'], '${sfdc.date.format}', '${sfdc.date.offset}')]" level="INFO" doc:name="log Date A"/>
-                <logger message="*********************** Date B: #[org.mule.templates.util.DateUtils.dateStringToISODateString(recordVars['accountInTargetInstance']['LastModifiedDate'], '${database.date.format}', '${database.date.offset}')]" level="INFO" doc:name="log Date B"/>
-                <logger message="*********************** isAfter expression: #[org.mule.templates.util.DateUtils.isAfter(org.mule.templates.util.DateUtils.dateStringToISODateString(payload['LastModifiedDate'], '${sfdc.date.format}', '${sfdc.date.offset}'), org.mule.templates.util.DateUtils.dateStringToISODateString(recordVars['accountInTargetInstance']['LastModifiedDate'], '${database.date.format}', '${database.date.offset}'))]" level="INFO" doc:name="log isAfter expression"/>
-                <logger message="*********************** Complete expression: #[org.mule.templates.util.DateUtils.isAfter(org.mule.templates.util.DateUtils.dateStringToISODateString(payload['LastModifiedDate'], '${sfdc.date.format}', '${sfdc.date.offset}'), org.mule.templates.util.DateUtils.dateStringToISODateString(recordVars['accountInTargetInstance']['LastModifiedDate'], '${database.date.format}', '${database.date.offset}'))]" level="INFO" doc:name="log complete expression"/>
+                <custom-transformer class="org.mule.templates.transformers.MapValuesToStringTransformer" doc:name="transform accountInTargetInstance values to String"/>
+                <batch:set-record-variable variableName="accountInTargetInstance" value="#[flowVars['newAccountInTargetInstance']]" doc:name="set accountInTargetInstance with new Map"/>
+                <logger message="************************************ #['Salesforce'.equals(flowVars['sourceSystem']) &amp;&amp; !(recordVars['accountInTargetInstance'] is NullPayload) &amp;&amp; org.mule.templates.util.DateUtils.isAfter(org.mule.templates.util.DateUtils.dateStringToISODateString(payload['LastModifiedDate'], '${sfdc.date.format}', '${sfdc.date.offset}'), org.mule.templates.util.DateUtils.dateStringToISODateString(recordVars['accountInTargetInstance']['LastModifiedDate'].toString(), '${database.date.format}', '${database.date.offset}')) &amp;&amp; '${sfdc.integration.user.id}' != payload.get('LastModifiedById')]" level="INFO" doc:name="Logger"/>
 			</batch:step>
 
-			<batch:step name="updateAccountInDatabaseStep" accept-expression="org.mule.templates.util.DateUtils.isAfter(org.mule.templates.util.DateUtils.dateStringToISODateString(payload['LastModifiedDate'], '${sfdc.date.format}', '${sfdc.date.offset}'), org.mule.templates.util.DateUtils.dateStringToISODateString(recordVars['accountInTargetInstance']['LastModifiedDate'], '${database.date.format}', '${database.date.offset}'))">
+			<batch:step name="updateAccountInDatabaseStep" accept-expression="'Salesforce'.equals(flowVars['sourceSystem']) &amp;&amp; !(recordVars['accountInTargetInstance'] is NullPayload) &amp;&amp; org.mule.templates.util.DateUtils.isAfter(org.mule.templates.util.DateUtils.dateStringToISODateString(payload['LastModifiedDate'], '${sfdc.date.format}', '${sfdc.date.offset}'), org.mule.templates.util.DateUtils.dateStringToISODateString(recordVars['accountInTargetInstance']['LastModifiedDate'].toString(), '${database.date.format}', '${database.date.offset}')) &amp;&amp; '${sfdc.integration.user.id}' != payload.get('LastModifiedById')">
                 <expression-component doc:name="prepare account for update"><![CDATA[payload.remove('LastModifiedById');
 payload.remove('LastModifiedDate');]]></expression-component>
                 <data-mapper:transform config-ref="Account_To_Account" doc:name="transform Salesforce account to Database account"/>
@@ -61,9 +60,6 @@ WHERE Name = #[payload['Name']]]]></db:parameterized-query>
 						level="INFO" doc:name="log response" />
 				</batch:commit>
 			</batch:step>
-            <batch:step name="Batch_Step" accept-policy="ALL">
-                <logger message="AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA" level="INFO" doc:name="Logger"/>
-            </batch:step>
 			<batch:step name="insertAccountsInDatabaseStep" accept-expression="#['Salesforce'.equals(flowVars['sourceSystem']) &amp;&amp; recordVars['accountInTargetInstance'] is NullPayload]">
                 <expression-component doc:name="prepare account for insert"><![CDATA[payload.remove('LastModifiedById');
 payload.remove('LastModifiedDate');
@@ -101,9 +97,11 @@ payload.remove('LastModifiedDate');
 				<enricher source="#[payload]" target="#[recordVars['accountInTargetInstance']]" doc:name="store result in record var 'accountInTargetInstance'">
                     <sfdc:query-single config-ref="Salesforce" query="SELECT Id, Name, LastModifiedById, LastModifiedDate, NumberOfEmployees FROM Account WHERE (Name = '#[payload['Name']]')" doc:name="query account"/>
 				</enricher>
+				<custom-transformer class="org.mule.templates.transformers.MapValuesToStringTransformer2" doc:name="transform accountInTargetInstance values to String"/>
+                <logger level="INFO" doc:name="Logger"/>
 			</batch:step>
 
-			<batch:step name="upsertAccountInSalesforceStep" accept-expression="#['Database'.equals(flowVars['sourceSystem']) &amp;&amp; (recordVars['accountInTargetInstance'] is NullPayload || (recordVars['accountInTargetInstance']['LastModifiedDate'] &lt; payload['LastModifiedDate'] &amp;&amp; '${db.integration.user.id}' != payload.get('LastModifiedById')))]">
+			<batch:step name="upsertAccountInSalesforceStep" accept-expression="'Database'.equals(flowVars['sourceSystem']) &amp;&amp; !(recordVars['accountInTargetInstance'] is NullPayload) &amp;&amp; org.mule.templates.util.DateUtils.isAfter(org.mule.templates.util.DateUtils.dateStringToISODateString(payload['LastModifiedDate'].toString(), '${database.date.format}', '${database.date.offset}'), org.mule.templates.util.DateUtils.dateStringToISODateString(recordVars['accountInTargetInstance']['LastModifiedDate'], '${sfdc.date.format}', '${sfdc.date.offset}')) &amp;&amp; '${db.integration.user.id}' != payload.get('LastModifiedById')">
                 <data-mapper:transform config-ref="Account_To_Account_1" doc:name="transform Database account to Salesforce account"/>
 				<expression-component doc:name="prepare account for upsert"><![CDATA[if(!(payload['NumberOfEmployees'] == null)) {
 	payload.put('NumberOfEmployees', Integer.parseInt(payload['NumberOfEmployees']));
