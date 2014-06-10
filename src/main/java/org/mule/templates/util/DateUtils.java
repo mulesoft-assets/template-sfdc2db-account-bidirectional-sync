@@ -1,5 +1,11 @@
 package org.mule.templates.util;
 
+import java.sql.Timestamp;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.TimeZone;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.Validate;
 import org.joda.time.DateTime;
@@ -14,6 +20,9 @@ import org.joda.time.format.DateTimeFormatter;
  * @author damiansima
  */
 public class DateUtils {
+
+	public static final String MYSQL_DATE_FORMAT = "yyyy-MM-dd HH:mm:ss.SSS";
+	public static final String ISO_DATE_FORMAT = "yyyy-MM-dd'T'HH:mm'Z'";
 
 	/**
 	 * The method will take any date and validate if it finish with "Z"
@@ -92,7 +101,7 @@ public class DateUtils {
 
 		if (StringUtils.isEmpty(format)) {
 			// Defaulting to MySQL format
-			format = "yyyy-MM-dd HH:mm:ss.SSS";
+			format = MYSQL_DATE_FORMAT;
 		}
 
 		if (StringUtils.isEmpty(timeZoneOffset)) {
@@ -103,6 +112,33 @@ public class DateUtils {
 		DateTimeFormatter formatter = DateTimeFormat.forPattern(format);
 		DateTime dateTime = formatter.withZone(DateTimeZone.forID(timeZoneOffset)).parseDateTime(date);
 
+		return dateTime.toString();
+	}
+	
+	/** 
+	 * Transform a java.util.Date to an ISO Date String 
+	 * without considering the java.util.Date time zone 
+	 * but the one provided 
+	 * 
+	 * @param date
+	 *            date that will be transformed to String 
+	 *            without considering its time zone
+	 * @param format
+	 *            pattern to parse the provided date
+	 * @param timeZoneOffset
+	 *            time zone to be applied, in the 
+	 *            format (+|-)HH:mm
+	 * @return a date representing a string wiht the ISO 
+	 * 			  8601 format yyyy-MM-dd'T'HH:mm:ss.SSSZ
+	 */
+	public static String dateToISODateString(Date date, String format, String timeZoneOffset) {
+		String intermediateFormat = "MM/dd/yyyy HH:mm:ss";
+		DateFormat df = new SimpleDateFormat(intermediateFormat);
+		String dateWithNoTimeZone = df.format(date);
+		
+		DateTimeFormatter formatter = DateTimeFormat.forPattern(intermediateFormat);
+		DateTime dateTime = formatter.withZone(DateTimeZone.forID(timeZoneOffset)).parseDateTime(dateWithNoTimeZone);
+		
 		return dateTime.toString();
 	}
 }
