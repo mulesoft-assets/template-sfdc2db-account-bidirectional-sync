@@ -21,11 +21,11 @@ http://www.mulesoft.org/schema/mule/ee/data-mapper http://www.mulesoft.org/schem
     <data-mapper:config name="Account_To_Account_1" transformationGraphPath="account_to_account_1.grf" doc:name="Account_To_Account_1"/>
     <data-mapper:config name="Account_To_Account_1Account_To_Account_2" transformationGraphPath="account_to_account_2.grf" doc:name="Account_To_Account_1Account_To_Account_2"/>
 
-	<batch:job name="syncBatch">
+	<batch:job name="syncBatchFromSalesforceToDb" max-failed-records="1">
 		<batch:threading-profile poolExhaustedAction="WAIT" />
 		<batch:process-records>
 
-			<batch:step name="getAccountInBStep" accept-expression="#['A'.equals(flowVars['sourceSystem'])]">
+			<batch:step name="getAccountInBStep" >
 				<expression-component doc:name="convert LastModifiedDate to Date"><![CDATA[f = new java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
 f.setTimeZone(TimeZone.getTimeZone("UTC"));
 payload['LastModifiedDate'] = f.parse(payload['LastModifiedDate']);
@@ -43,7 +43,7 @@ payload['LastModifiedDate'] = f.parse(payload['LastModifiedDate']);
 ]]></expression-component>
 			</batch:step>
 
-			<batch:step name="upsertAccountInBStep" accept-expression="#['A'.equals(flowVars['sourceSystem']) &amp;&amp; !(recordVars['accountInTargetInstance'] is NullPayload) &amp;&amp; recordVars['accountInTargetInstance']['LastModifiedDate'] &lt; payload['LastModifiedDate'] &amp;&amp; '${sfdc.integration.user.id}' != payload.get('LastModifiedById')]">
+			<batch:step name="upsertAccountInBStep" accept-expression="!(recordVars['accountInTargetInstance'] is NullPayload) &amp;&amp; recordVars['accountInTargetInstance']['LastModifiedDate'] &lt; payload['LastModifiedDate'] &amp;&amp; '${sfdc.integration.user.id}' != payload.get('LastModifiedById')">
                 <data-mapper:transform config-ref="Account_To_Account" doc:name="transform Salesforce Account To database Account"/>
 				<batch:commit size="200" doc:name="Batch Commit">
 					<db:update config-ref="GenericDatabaseConnector" bulkMode="true"
@@ -63,7 +63,7 @@ WHERE Name = #[payload['Name']]]]></db:parameterized-query>
 						level="INFO" doc:name="log response" />
 				</batch:commit>
 			</batch:step>
-			<batch:step name="insertAccountsToBStep" accept-expression="#['A'.equals(flowVars['sourceSystem']) &amp;&amp; recordVars['accountInTargetInstance'] is NullPayload]">
+			<batch:step name="insertAccountsToBStep" accept-expression="recordVars['accountInTargetInstance'] is NullPayload">
                 <data-mapper:transform config-ref="Account_To_Account_1Account_To_Account_2" doc:name="transform Salesforce Account To database Account"/>
 				<batch:commit size="200" doc:name="Batch Commit">
 					<db:insert config-ref="GenericDatabaseConnector" bulkMode="true"
@@ -93,21 +93,23 @@ WHERE Name = #[payload['Name']]]]></db:parameterized-query>
 					<logger message="Insert Database B response: #[payload]"	level="INFO" doc:name="log response" />
 				</batch:commit>
 			</batch:step>
-			<batch:step name="getAccountInAStep" accept-expression="#['B'.equals(flowVars['sourceSystem'])]">
-				<enricher source="#[payload]" target="#[recordVars['accountInTargetInstance']]" doc:name="store account">
-					<processor-chain doc:name="Processor Chain">
-						<sfdc:query-single config-ref="Salesforce"
-							query="SELECT Id, Name, LastModifiedById, LastModifiedDate, NumberOfEmployees FROM Account WHERE (Name = '#[payload['Name']]')" doc:name="query account from A" />
-                        <expression-component doc:name="Expression"><![CDATA[if (!(payload is NullPayload)) {
-	f = new java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
-	f.setTimeZone(TimeZone.getTimeZone("UTC"));
-	payload['LastModifiedDate'] = f.parse(payload['LastModifiedDate']);
-}]]></expression-component>
-					</processor-chain>
-				</enricher>
-			</batch:step>
 
-			<batch:step name="upsertAccountInAStep" accept-expression="#['B'.equals(flowVars['sourceSystem']) &amp;&amp; (recordVars['accountInTargetInstance'] is NullPayload || (recordVars['accountInTargetInstance']['LastModifiedDate'] &lt; payload['LastModifiedDate'] &amp;&amp; '${db.integration.user.id}' != payload.get('LastModifiedById')))]">
+
+		</batch:process-records>
+        <batch:on-complete>
+            <expression-component doc:name="release lock"><![CDATA[#[app.registry['PollSynchronizer'].unlock()]]]></expression-component>
+        </batch:on-complete>
+	</batch:job>
+	
+	
+	
+	
+	
+	<batch:job name="syncBatchFromDbtoSalesforce" max-failed-records="1">
+		<batch:threading-profile poolExhaustedAction="WAIT" />
+		<batch:process-records>
+
+			<batch:step name="upsertAccountInAStep" accept-expression="(recordVars['accountInTargetInstance'] is NullPayload || (recordVars['accountInTargetInstance']['LastModifiedDate'] &lt; payload['LastModifiedDate'] &amp;&amp; '${db.integration.user.id}' != payload.get('LastModifiedById')))">
                 <data-mapper:transform config-ref="Account_To_Account_1" doc:name="transform database Account To Salesforce Account"/>
 				<expression-component doc:name="prepare account for upsert"><![CDATA[if(!(payload['NumberOfEmployees'] == null)) {
 	payload.put('NumberOfEmployees', Integer.parseInt(payload['NumberOfEmployees']));
@@ -132,6 +134,9 @@ if(!(payload['SalesforceId'] == null)) {
 			</batch:step>
 
 		</batch:process-records>
+        <batch:on-complete>
+            <expression-component doc:name="release lock"><![CDATA[#[app.registry['PollSynchronizer'].unlock()]]]></expression-component>
+        </batch:on-complete>
 	</batch:job>
 
 </mule>

@@ -21,17 +21,19 @@ http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/cu
 				startDelay="1000" />
 			<watermark variable="lastQueryDateA" default-expression="${watermark.default.expression}"
 				selector="MAX" selector-expression="#[payload.LastModifiedDate]" />
-			<sfdc:query config-ref="Salesforce"
-				query="dsql:SELECT AccountNumber, AccountSource, AnnualRevenue, BillingCity, BillingCountry, BillingPostalCode, BillingState, BillingStreet, Description, Fax, Id, Industry, LastModifiedById, LastModifiedDate, Name, NumberOfEmployees, OwnerId, Ownership, ParentId, Phone, Rating, ShippingCity, ShippingCountry, ShippingPostalCode, ShippingState, ShippingStreet, Sic, SicDesc, Site, TickerSymbol, Type, Website FROM Account WHERE LastModifiedDate &gt; #[flowVars['lastQueryDateA']] ORDER BY LastModifiedDate ASC LIMIT 200"
-				doc:name="fetch accounts from A" />
+            <processor-chain doc:name="Processor Chain">
+                <expression-component doc:name="lock processing to avoid two syncs occurring at the same time"><![CDATA[app.registry['PollSynchronizer'].lock();]]></expression-component>
+                <sfdc:query config-ref="Salesforce" query="dsql:SELECT AccountNumber, AccountSource, AnnualRevenue, BillingCity, BillingCountry, BillingPostalCode, BillingState, BillingStreet, Description, Fax, Id, Industry, LastModifiedById, LastModifiedDate, Name, NumberOfEmployees, OwnerId, Ownership, ParentId, Phone, Rating, ShippingCity, ShippingCountry, ShippingPostalCode, ShippingState, ShippingStreet, Sic, SicDesc, Site, TickerSymbol, Type, Website FROM Account WHERE LastModifiedDate &gt; #[flowVars['lastQueryDateA']] ORDER BY LastModifiedDate ASC LIMIT 200" doc:name="fetch accounts from A"/>
+            </processor-chain>
+
 		</poll>
 		<expression-component doc:name="convert lastQueryDateA to Date"><![CDATA[f = new java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
 f.setTimeZone(TimeZone.getTimeZone("UTC"));
 lastQueryDateA = f.parse(lastQueryDateA);
 ]]></expression-component>
-		<set-variable variableName="sourceSystem" value="A"
-			doc:name="set A as source system" />
-		<batch:execute name="syncBatch" doc:name="trigger batch execution" />
+
+		<batch:execute name="syncBatchFromSalesforceToDb" doc:name="trigger batch execution" />
+		        <exception-strategy ref="defaultChoiceExceptionStrategy" doc:name="Reference Exception Strategy"/>
 	</flow>
 
 	<flow name="triggerSyncFromDbFlow" doc:name="triggerSyncFromDbFlow"
@@ -41,13 +43,16 @@ lastQueryDateA = f.parse(lastQueryDateA);
 				startDelay="1000" />
 			<watermark variable="lastQueryDateB" default-expression="${watermark.default.expression}"
 				selector="MAX" selector-expression="#[payload.LastModifiedDate]" />
-			<db:select config-ref="GenericDatabaseConnector" doc:name="fetch accounts from B">
-                <db:parameterized-query><![CDATA[SELECT SalesforceId, Name, AccountNumber, Description, LastModifiedById, LastModifiedDate, NumberOfEmployees, Phone, Type FROM Account WHERE LastModifiedDate > #[flowVars['lastQueryDateB']] ORDER BY LastModifiedDate ASC]]></db:parameterized-query>
+            <processor-chain doc:name="Processor Chain">
+                <expression-component doc:name="lock processing to avoid two syncs occurring at the same time"><![CDATA[app.registry['PollSynchronizer'].lock();]]></expression-component>
+                <db:select config-ref="GenericDatabaseConnector" doc:name="fetch accounts from B">
+                    <db:parameterized-query><![CDATA[SELECT SalesforceId, Name, AccountNumber, Description, LastModifiedById, LastModifiedDate, NumberOfEmployees, Phone, Type FROM Account WHERE LastModifiedDate > #[flowVars['lastQueryDateB']] ORDER BY LastModifiedDate ASC]]></db:parameterized-query>
+                </db:select>
+            </processor-chain>
 
-			</db:select>
 		</poll>
-		<set-variable variableName="sourceSystem" value="B"
-			doc:name="set B as source system" />
-		<batch:execute name="syncBatch" doc:name="trigger batch execution" />
+
+		<batch:execute name="syncBatchFromDbtoSalesforce" doc:name="trigger batch execution" />
+		        <exception-strategy ref="defaultChoiceExceptionStrategy" doc:name="Reference Exception Strategy"/>
 	</flow>
 </mule>
