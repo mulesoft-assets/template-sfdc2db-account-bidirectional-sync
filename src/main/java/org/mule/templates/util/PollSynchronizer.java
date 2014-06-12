@@ -26,18 +26,14 @@ public class PollSynchronizer {
 
 	public void lock() {
 		try {
-			System.err.println("before acquire " + Thread.currentThread().getName());
 			getLock().acquire();
-			System.err.println("after acquire " + Thread.currentThread().getName());
 		} catch (InterruptedException e) {
 			log.error(e.getCause(), e);
 		}
 	}
 	
 	public void unlock() {
-		System.err.println("before release " + Thread.currentThread().getName());
 		getLock().release();
-		System.err.println("after release " + Thread.currentThread().getName());
 	}
 
 	public Semaphore getLock() {
