@@ -6,10 +6,10 @@ import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
 /**
- * The function of this class is provide date comparation an transformation
- * functionality.
+ * Class for providing date comparison and transformation tools
  * 
  * @author damiansima
+ * @author Javier Casal
  */
 public class DateUtils {
 
