@@ -8,8 +8,7 @@
 <Field __implementationClass="java.lang.String" __index="43" __sourcePath="{}/Account/Id" containerType="SINGLE" label="Id" name="Id" type="string"/>
 <Field __implementationClass="java.lang.String" __index="36" __sourcePath="{}/Account/Name" containerType="SINGLE" label="Name" name="Name" type="string"/>
 <Field __implementationClass="java.lang.Integer" __index="16" __sourcePath="{}/Account/NumberOfEmployees" containerType="SINGLE" label="NumberOfEmployees" name="NumberOfEmployees" type="integer"/>
-<Field __implementationClass="java.lang.String" __index="4" __sourcePath="{}/Account/Phone" containerType="SINGLE" label="Phone" name="Phone" type="string"/>
-<Field __index="7" __sourcePath="{}/Account/Type" containerType="SINGLE" label="Type" name="Type" type="string"/>
+<Field __sourcePath="{}/Account/Industry" containerType="SINGLE" label="Industry" name="Industry" type="string"/>
 </Record>
 </Metadata>
 <Metadata __index="0" __referenceCounter="1" __sourcePath="{}/Account" _dataStructure="OBJECT" _id="__id" _type="Input" id="a320ad5d-9fa9-42bc-9324-6817bf929771">
@@ -20,8 +19,7 @@
 <Field __index="2" __sourcePath="{}/Account/Id" containerType="SINGLE" label="Id" name="Id" type="string"/>
 <Field __index="3" __sourcePath="{}/Account/Name" containerType="SINGLE" label="Name" name="Name" type="string"/>
 <Field __index="4" __sourcePath="{}/Account/NumberOfEmployees" containerType="SINGLE" label="NumberOfEmployees" name="NumberOfEmployees" type="integer"/>
-<Field __index="5" __sourcePath="{}/Account/Phone" containerType="SINGLE" label="Phone" name="Phone" type="string"/>
-<Field __index="6" __sourcePath="{}/Account/Type" containerType="SINGLE" label="Type" name="Type" type="string"/>
+<Field __sourcePath="{}/Account/Industry" containerType="SINGLE" label="Industry" name="Industry" type="string"/>
 </Record>
 </Metadata>
 <Dictionary>
@@ -38,8 +36,7 @@
   <Mapping cloverField="Id" trim="true" xpath="Id"/>
   <Mapping cloverField="Name" trim="true" xpath="Name"/>
   <Mapping cloverField="NumberOfEmployees" trim="true" xpath="NumberOfEmployees"/>
-  <Mapping cloverField="Phone" trim="true" xpath="Phone"/>
-  <Mapping cloverField="Type" trim="true" xpath="Type"/>
+  <Mapping cloverField="Industry" trim="true" xpath="Industry"/>
 </Context>
 ]]></attr>
 <attr name="__typeName"><![CDATA[Account]]></attr>
@@ -56,14 +53,12 @@ output.Description = input.Description;
 output.Id = input.Id;
 output.Name = input.Name;
 output.NumberOfEmployees = input.NumberOfEmployees;
-output.Phone = input.Phone;
-output.Type = input.Type;]]></attr>
+output.Industry = input.Industry;]]></attr>
 </Node>
 <Node cacheInMemory="true" enabled="enabled" fileURL="dict:outputPayload" guiName="Map&lt;k,v&gt; WRITER" guiX="900" guiY="20" id="MAP_WRITER0" type="MAP_WRITER">
 <attr name="mapping"><![CDATA[<?xml version="1.0" encoding="UTF-8"?>
 <Account xmlns:clover="http://www.cloveretl.com/ns/xmlmapping" clover:inPort="0">
-  <Phone clover:dataType="java.lang.String">$0.Phone</Phone>
-  <Type>$0.Type</Type>
+  <Industry>$0.Industry</Industry>
   <NumberOfEmployees clover:dataType="java.lang.Integer">$0.NumberOfEmployees</NumberOfEmployees>
   <Description clover:dataType="java.lang.String">$0.Description</Description>
   <AccountNumber clover:dataType="java.lang.String">$0.AccountNumber</AccountNumber>

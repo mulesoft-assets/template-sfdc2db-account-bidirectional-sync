@@ -110,31 +110,10 @@ public class BidirectionalAccountSyncTestIT extends AbstractTemplateTestCase {
 	public void whenUpdatingAnAccountInDatastoreTheBelongingAccountGetsUpdatedInSalesforce() throws MuleException, Exception {
 		Map<String, Object> accountDatabase = new HashMap<String, Object>();
 		accountDatabase.put("AccountNumber", "123321");
-		accountDatabase.put("AccountSource", "AccountSource");
-		accountDatabase.put("AnnualRevenue", "11000");
-		accountDatabase.put("BillingCity", "San Francisco");
-		accountDatabase.put("BillingCountry", "USA");
-		accountDatabase.put("BillingPostalCode", "94108");
-		accountDatabase.put("BillingState", "California");
-		accountDatabase.put("BillingStreet", "77 Geary Street");
 		accountDatabase.put("Description", "Description");
-		accountDatabase.put("Fax", "(415) 888-112233");
 		accountDatabase.put("Industry", "Ecommerce");
 		accountDatabase.put("Name", buildUniqueName(TEMPLATE_NAME, "Test-"));
 		accountDatabase.put("NumberOfEmployees", 289);
-		accountDatabase.put("Phone", "(415) 888-1122");
-		accountDatabase.put("Rating", "");
-		accountDatabase.put("ShippingCity", "San Francisco");
-		accountDatabase.put("ShippingCountry", "USA");
-		accountDatabase.put("ShippingPostalCode", "94108");
-		accountDatabase.put("ShippingState", "California");
-		accountDatabase.put("ShippingStreet", "77 Geary Street");
-		accountDatabase.put("Sic", "Sic");
-		accountDatabase.put("SicDesc", "SicDesc");
-		accountDatabase.put("Site", "www.mulsesoft.com");
-		accountDatabase.put("TickerSymbol", "");
-		accountDatabase.put("Type", "OEM");
-		accountDatabase.put("Website", "www.mulsesoft.com");
 
 		createdAccountsInDatabase.add(accountDatabase);
 		
@@ -151,8 +130,6 @@ public class BidirectionalAccountSyncTestIT extends AbstractTemplateTestCase {
 		Assert.assertNotNull("Synchronized Account should not be null", payload);
 		Assert.assertEquals("The Account should have been sync and new Name must match", accountDatabase.get("Name"), payload.get("Name"));
 		Assert.assertEquals("The Account should have been sync and new AccountNumber must match", accountDatabase.get("AccountNumber"), payload.get("AccountNumber"));
-		Assert.assertEquals("The Account should have been sync and new BillingCity must match", accountDatabase.get("BillingCity"), payload.get("BillingCity"));
-		Assert.assertEquals("The Account should have been sync and new Phone must match", accountDatabase.get("Phone"), payload.get("Phone"));
 		Assert.assertEquals("The Account should have been sync and new NumberOfEmployees must match", accountDatabase.get("NumberOfEmployees"), payload.get("NumberOfEmployees"));
 }
 

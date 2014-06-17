@@ -52,10 +52,9 @@ payload['LastModifiedDate'] = f.parse(payload['LastModifiedDate']);
 AccountNumber = #[payload['AccountNumber']], 
 Description = #[payload['Description']],  
 NumberOfEmployees = #[payload['NumberOfEmployees']], 
-Phone = #[payload['Phone']], 
-Type = #[payload['Type']],	
 LastModifiedDate = CURRENT_TIMESTAMP
 WHERE Name = #[payload['Name']]]]></db:parameterized-query>
+
 
 
 					</db:update>
@@ -73,8 +72,6 @@ WHERE Name = #[payload['Name']]]]></db:parameterized-query>
 	Description,
 	Name,
 	NumberOfEmployees,
-	Phone,
-	Type,
 	LastModifiedById,
 	LastModifiedDate
 ) VALUES (
@@ -82,11 +79,10 @@ WHERE Name = #[payload['Name']]]]></db:parameterized-query>
 	#[payload['Description']],
 	#[payload['Name']],
 	#[payload['NumberOfEmployees']],
-	#[payload['Phone']],
-	#[payload['Type']],
 	CURRENT_USER,
 	CURRENT_TIMESTAMP
 )]]></db:parameterized-query>
+
 
 
 					</db:insert>
