@@ -21,7 +21,7 @@ http://www.mulesoft.org/schema/mule/objectstore http://www.mulesoft.org/schema/m
 		<sfdc:connection-pooling-profile initialisationPolicy="INITIALISE_ONE" exhaustedAction="WHEN_EXHAUSTED_GROW" />
 	</sfdc:config>
 	<spring:beans>
-  		<spring:bean id="PollSynchronizer" name="PollSynchronizer" class="org.mule.templates.util.PollSynchronizer" scope="singleton" />
+  		<spring:bean id="PollSynchronizer" name="PollSynchronizer" class="org.mule.templates.concurrent.PollSynchronizer" scope="singleton" />
  	</spring:beans>	
 
 </mule>
