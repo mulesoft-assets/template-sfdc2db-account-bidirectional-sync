@@ -53,11 +53,14 @@ Once you have imported you Anypoint Template into Anypoint Studio you need to fo
 		<section id="application_configuration">
 		<![CDATA[
 		
+### Polling + Watermartk properties
 + polling.frequency `10000`  
 This are the milliseconds (also different time units can be used) that will run between two different checks for updates in Salesforce and Database
 
-+ watermark.default.expression `2014-02-25T11:00:00.000Z`  
-This property is an important one, as it configures what should be the start point of the synchronization.The date format accepted in SFDC Query Language is either *YYYY-MM-DDThh:mm:ss+hh:mm* or you can use Constants. [More information about Dates in SFDC][3]
++ sfdc.watermark.default.expression `2014-02-25T11:00:00.000Z`
++ database.watermark.default.expression `2014-02-25T11:00:00.000Z`  
+This properties are important ones, as they configure what should be the start point of the synchronization for each system. The date format accepted in SFDC Query Language is either *YYYY-MM-DDThh:mm:ss+hh:mm* or you can use Constants. [More information about Dates in SFDC](http://www.salesforce.com/us/developer/docs/officetoolkit/Content/sforce_api_calls_soql_select_dateformats.htm)
+As a default value for this default properties we provide a groovy expression that starts checking for updates since almost the moment where the template is started (you can check an example [here](https://github.com/mulesoft/template-sfdc2db-account-bidirectional-sync/blob/master/src/main/resources/common.properties#L6))    
 
 ### SalesForce Connector configuration
 + sfdc.username `jorge.drexler@mail.com`

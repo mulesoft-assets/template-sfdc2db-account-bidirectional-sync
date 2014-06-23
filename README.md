@@ -53,7 +53,7 @@ And so on...
  This particular Anypoint Template illustrate the synchronization use case between SalesForce and a Database, thus it requires a DB instance to work.
 The Anypoint Template comes packaged with a SQL script to create the DB table that uses. 
 It is the user responsibility to use that script to create the table in an available schema and change the configuration accordingly.
-The SQL script file can be found in [src/main/resources/account.sql] (../master/src/main/resources/account.sql)
+The SQL script file can be found in [src/main/resources/account.sql](../master/src/main/resources/account.sql)
   
   
 The question for recent changes since a certain moment is nothing but a [poll inbound](http://www.mulesoft.org/documentation/display/current/Poll+Reference) with a [watermark](http://blogs.mulesoft.org/data-synchronizing-made-easy-with-mule-watermarks/) defined.
@@ -101,7 +101,7 @@ Once you have imported you Anypoint Template into Anypoint Studio you need to fo
 + Click on  `"Mule Application"`
 
 ### Running on Mule ESB stand alone <a name="runonmuleesbstandalone"/>
-Complete all properties in one of the property files, for example in [mule.prod.properties] (../blob/master/src/main/resources/mule.prod.properties) and run your app with the corresponding environment variable to use it. To follow the example, this will be `mule.env=prod`. 
+Complete all properties in one of the property files, for example in [mule.prod.properties](../blob/master/src/main/resources/mule.prod.properties) and run your app with the corresponding environment variable to use it. To follow the example, this will be `mule.env=prod`. 
 
 
 ## Running on CloudHub <a name="runoncloudhub"/>
@@ -115,11 +115,14 @@ Mule Studio provides you with really easy way to deploy your Template directly t
 ## Properties to be configured (With examples) <a name="propertiestobeconfigured"/>
 In order to use this Mule Anypoint Template you need to configure properties (Credentials, configurations, etc.) either in properties file or in CloudHub as Environment Variables. Detail list with examples:
 ### Application configuration
+### Polling + Watermartk properties
 + polling.frequency `10000`  
 This are the milliseconds (also different time units can be used) that will run between two different checks for updates in Salesforce and Database
 
-+ watermark.default.expression `2014-02-25T11:00:00.000Z`  
-This property is an important one, as it configures what should be the start point of the synchronization.The date format accepted in SFDC Query Language is either *YYYY-MM-DDThh:mm:ss+hh:mm* or you can use Constants. [More information about Dates in SFDC][3]
++ sfdc.watermark.default.expression `2014-02-25T11:00:00.000Z`
++ database.watermark.default.expression `2014-02-25T11:00:00.000Z`  
+This properties are important ones, as they configure what should be the start point of the synchronization for each system. The date format accepted in SFDC Query Language is either *YYYY-MM-DDThh:mm:ss+hh:mm* or you can use Constants. [More information about Dates in SFDC](http://www.salesforce.com/us/developer/docs/officetoolkit/Content/sforce_api_calls_soql_select_dateformats.htm)
+As a default value for this default properties we provide a groovy expression that starts checking for updates since almost the moment where the template is started (you can check an example [here](https://github.com/mulesoft/template-sfdc2db-account-bidirectional-sync/blob/master/src/main/resources/common.properties#L6))    
 
 ### SalesForce Connector configuration
 + sfdc.username `jorge.drexler@mail.com`
