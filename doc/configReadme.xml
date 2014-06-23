@@ -1,0 +1,96 @@
+<?xml version="1.0"?>
+<configuration>
+	<placeholders>
+		<placeholder id="template_name">SFDC2DB-account-bidirectional-sync</placeholder>
+	</placeholders>
+	<sections>
+		<section id="use_case">
+			As a Salesforce admin, I want to have my accounts synchronized between Salesforce and Database organizations.
+		</section>
+		<section id="considerations">
+<![CDATA[
+### Template overview
+Let's say we want to keep Salesforce instance synchronized with Database instance. Then, the integration behavior can be summarized just with the following steps:
+
+1. Ask Salesforce:
+> *Which changes have there been since the last time I got in touch with you?*
+
+2. For each of the updates fetched in the previous step (1.), ask Database:
+> *Does the update received from Salesforce should be applied?*
+
+3. If Database answer for the previous question (2.) is *Yes*, then *upsert* (create or update depending each particular case) Database with the belonging change
+
+4. Repeat previous steps (1. to 3.) the other way around (using Database as source instance and Salesforce as the target one)
+
+ Repeat *ad infinitum*:
+
+5. Ask Salesforce:
+> *Which changes have there been since the question I've made in the step 1.?*
+
+And so on...
+
+### Note
+ This particular Anypoint Template illustrate the synchronization use case between SalesForce and a Database, thus it requires a DB instance to work.
+The Anypoint Template comes packaged with a SQL script to create the DB table that uses. 
+It is the user responsibility to use that script to create the table in an available schema and change the configuration accordingly.
+The SQL script file can be found in [src/main/resources/account.sql] (../master/src/main/resources/account.sql)
+  
+  
+The question for recent changes since a certain moment is nothing but a [poll inbound](http://www.mulesoft.org/documentation/display/current/Poll+Reference) with a [watermark](http://blogs.mulesoft.org/data-synchronizing-made-easy-with-mule-watermarks/) defined.
+]]>
+		</section>
+		<section id="running_on_studio">
+		<![CDATA[
+Once you have imported you Anypoint Template into Anypoint Studio you need to follow these steps to run it:
+
++ Locate the properties file `mule.dev.properties`, in src/main/resources
++ Complete all the properties required as per the examples in the section [Properties to be configured](#propertiestobeconfigured)
++ Once that is done, right click on you Anypoint Template project folder 
++ Hover you mouse over `"Run as"`
++ Click on  `"Mule Application"`
+		]]>
+		</section>
+		<section id="application_configuration">
+		<![CDATA[
+		
++ polling.frequency `10000`  
+This are the milliseconds (also different time units can be used) that will run between two different checks for updates in Salesforce and Database
+
++ watermark.default.expression `2014-02-25T11:00:00.000Z`  
+This property is an important one, as it configures what should be the start point of the synchronization.The date format accepted in SFDC Query Language is either *YYYY-MM-DDThh:mm:ss+hh:mm* or you can use Constants. [More information about Dates in SFDC][3]
+
+### SalesForce Connector configuration
++ sfdc.username `jorge.drexler@mail.com`
++ sfdc.password `Noctiluca123`
++ sfdc.securityToken `avsfwCUl7apQs56Xq2AKi3X`
++ sfdc.url `https://login.salesforce.com/services/Soap/u/28.0`
++ sfdc.integration.user.id `005n0000000T3QkAAK`
+
+### Database Connector configuration
++ database.url=jdbc:mysql://192.168.224.130:3306/mule?user=mule&password=mule
++ db.integration.user.id=mule@localhost
+
+If it is required to connect to a different Database there should be provided the jar for the library and changed the value of that field in the connector.
+]]>
+		</section>
+		<section id="api_calls">
+		<![CDATA[
+SalesForce imposes limits on the number of API Calls that can be made.
+Therefore calculating this amount may be an important factor to
+consider. Product Broadcast Template calls to the API can be
+calculated using the formula:
+
+**X / 200**
+
+Being X the number of Products to be synchronized on each run.
+
+The division by 200 is because, by default, Users are gathered in groups
+of 200 for each Upsert API Call in the commit step. Also consider
+that this calls are executed repeatedly every polling cycle.
+
+For instance if 10 records are fetched from origin instance, then 1 api
+calls to SFDC will be made ( 1).
+]]>
+		</section>
+	</sections>
+</configuration>
