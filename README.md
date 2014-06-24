@@ -53,7 +53,7 @@ And so on...
  This particular Anypoint Template illustrate the synchronization use case between SalesForce and a Database, thus it requires a DB instance to work.
 The Anypoint Template comes packaged with a SQL script to create the DB table that uses. 
 It is the user responsibility to use that script to create the table in an available schema and change the configuration accordingly.
-The SQL script file can be found in [src/main/resources/account.sql](../master/src/main/resources/account.sql)
+The SQL script file can be found in [src/main/resources/account.sql] (../master/src/main/resources/account.sql)
   
   
 The question for recent changes since a certain moment is nothing but a [poll inbound](http://www.mulesoft.org/documentation/display/current/Poll+Reference) with a [watermark](http://blogs.mulesoft.org/data-synchronizing-made-easy-with-mule-watermarks/) defined.
@@ -101,7 +101,7 @@ Once you have imported you Anypoint Template into Anypoint Studio you need to fo
 + Click on  `"Mule Application"`
 
 ### Running on Mule ESB stand alone <a name="runonmuleesbstandalone"/>
-Complete all properties in one of the property files, for example in [mule.prod.properties](../blob/master/src/main/resources/mule.prod.properties) and run your app with the corresponding environment variable to use it. To follow the example, this will be `mule.env=prod`. 
+Complete all properties in one of the property files, for example in [mule.prod.properties] (../blob/master/src/main/resources/mule.prod.properties) and run your app with the corresponding environment variable to use it. To follow the example, this will be `mule.env=prod`. 
 
 
 ## Running on CloudHub <a name="runoncloudhub"/>
@@ -122,7 +122,16 @@ This are the milliseconds (also different time units can be used) that will run 
 + sfdc.watermark.default.expression `2014-02-25T11:00:00.000Z`
 + database.watermark.default.expression `2014-02-25T11:00:00.000Z`  
 This properties are important ones, as they configure what should be the start point of the synchronization for each system. The date format accepted in SFDC Query Language is either *YYYY-MM-DDThh:mm:ss+hh:mm* or you can use Constants. [More information about Dates in SFDC](http://www.salesforce.com/us/developer/docs/officetoolkit/Content/sforce_api_calls_soql_select_dateformats.htm)
-As a default value for this default properties we provide a groovy expression that starts checking for updates since almost the moment where the template is started (you can check an example [here](https://github.com/mulesoft/template-sfdc2db-account-bidirectional-sync/blob/master/src/main/resources/common.properties#L6))    
+As a default value for this default properties we provide a groovy expression that starts checking for updates since almost the moment where the template is started (you can check an example [here](https://github.com/mulesoft/template-sfdc2db-account-bidirectional-sync/blob/master/src/main/resources/common.properties#L6))
+
+### Date transformation-related properties
+As the template uses some date fields in its logic (e.g. deciding whether to apply an update or not) some common format for doing comparisons between them is need. The convention defined is to do the comparison using org.joda.time.DateTime as the common date interface. In order to transform date values provided to DateTime values, the template must include a definition for the following values.  
+
++ sfdc.date.format `yyyy-MM-dd\\'T\\'HH:mm:ss.SSSZ`
+Salesforce retrieves its dates (e.g. LastModifiedDate) as Strings. This template recives as a parameter the String format String date has in order to get a DateTime object that represents the same moment.
+
++ database.date.offset `-00:00`
+In the Database case, the object retrieved is a Date, and what needs to be done in order to get a DateTime object that represents the same time of the moment given is being aware of the Database offset.   
 
 ### SalesForce Connector configuration
 + sfdc.username `jorge.drexler@mail.com`
@@ -163,7 +172,7 @@ Of course more files will be found such as Test Classes and [Mule Application Fi
 Here is a list of the main XML files you'll find in this application:
 
 * [config.xml](#configxml)
-* [inboundEndpoints.xml](#inboundendpointsxml)
+* [endpoints.xml](#endpointsxml)
 * [businessLogic.xml](#businesslogicxml)
 * [errorHandling.xml](#errorhandlingxml)
 
@@ -177,7 +186,7 @@ In the visual editor they can be found on the *Global Element* tab.
 ## businessLogic.xml<a name="businesslogicxml"/>
 Functional aspect of the Anypoint Template is implemented on this XML, directed by a batch job that will be responsible for creations/updates. The severeal message processors constitute four high level actions that fully implement the logic of this Anypoint Template:
 
-1. Job execution is invoked from triggerFlow (inboundEndpoints.xml) everytime there is a new query executed asking for created/updated Contacts.
+1. Job execution is invoked from triggerFlow (endpoints.xml) everytime there is a new query executed asking for created/updated Contacts.
 2. During the Process stage, each SFDC User will be filtered depending on, if it has an existing matching user in the SFDC Org B.
 3. The last step of the Process stage will group the users and create/update them in SFDC Org B.
 Finally during the On Complete stage the Anypoint Template will logoutput statistics data into the console.
