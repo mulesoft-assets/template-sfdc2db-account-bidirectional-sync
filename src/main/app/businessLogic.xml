@@ -35,7 +35,7 @@ http://www.mulesoft.org/schema/mule/ee/data-mapper http://www.mulesoft.org/schem
 				</enricher>
 			</batch:step>
 
-			<batch:step name="updateAccountInDatabaseStep" accept-expression="(!(recordVars['accountInTargetInstance'] is NullPayload) &amp;&amp; org.mule.templates.date.DateUtils.stringToDateTime(payload['LastModifiedDate'], '${sfdc.date.format}').isAfter(org.mule.templates.date.DateUtils.dateToDateTimeUsingProvidedOffset(recordVars['accountInTargetInstance']['LastModifiedDate'], '${database.date.offset}')) &amp;&amp; '${sfdc.integration.user.id}' != payload.get('LastModifiedById'))">
+			<batch:step name="updateAccountInDatabaseStep" accept-expression="(!(recordVars['accountInTargetInstance'] is NullPayload) &amp;&amp; org.mule.templates.date.DateUtils.ISOStringDateToDateTime(payload['LastModifiedDate']).isAfter(org.mule.templates.date.DateUtils.dateToDateTime(recordVars['accountInTargetInstance']['LastModifiedDate'])) &amp;&amp; '${sfdc.integration.user.id}' != payload.get('LastModifiedById'))">
                 <expression-component doc:name="prepare account for update"><![CDATA[payload.remove('LastModifiedById');
 payload.remove('LastModifiedDate');]]></expression-component>
                 <data-mapper:transform config-ref="Account_To_Account" doc:name="transform Salesforce account to Database account"/>
@@ -100,10 +100,6 @@ payload.remove('LastModifiedDate');
         </batch:on-complete>
 	</batch:job>
 	
-	
-	
-	
-	
 	<batch:job name="fromDatabaseBatch" max-failed-records="-1">
 		<batch:threading-profile poolExhaustedAction="WAIT" />
 		<batch:process-records>
@@ -113,7 +109,7 @@ payload.remove('LastModifiedDate');
 				</enricher>
 			</batch:step>
 
-			<batch:step name="upsertAccountInSalesforceStep" accept-expression="recordVars['accountInTargetInstance'] is NullPayload ? true : org.mule.templates.date.DateUtils.dateToDateTimeUsingProvidedOffset(payload['LastModifiedDate'], '${database.date.offset}').isAfter(org.mule.templates.date.DateUtils.stringToDateTime(recordVars['accountInTargetInstance']['LastModifiedDate'], '${sfdc.date.format}')) &amp;&amp; '${db.integration.user.id}' != payload.get('LastModifiedById')">
+			<batch:step name="upsertAccountInSalesforceStep" accept-expression="recordVars['accountInTargetInstance'] is NullPayload ? true : org.mule.templates.date.DateUtils.dateToDateTime(payload['LastModifiedDate']).isAfter(org.mule.templates.date.DateUtils.ISOStringDateToDateTime(recordVars['accountInTargetInstance']['LastModifiedDate'])) &amp;&amp; '${database.integration.user.id}' != payload.get('LastModifiedById')">
                 <data-mapper:transform config-ref="Account_To_Account_1" doc:name="transform Database account to Salesforce account"/>
 				<expression-component doc:name="prepare account for upsert"><![CDATA[if(!(payload['NumberOfEmployees'] == null)) {
 	payload.put('NumberOfEmployees', Integer.parseInt(payload['NumberOfEmployees']));

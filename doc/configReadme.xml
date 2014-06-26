@@ -53,23 +53,16 @@ Once you have imported you Anypoint Template into Anypoint Studio you need to fo
 		<section id="application_configuration">
 		<![CDATA[
 		
-### Polling + Watermartk properties
+### Polling properties
 + polling.frequency `10000`  
 This are the milliseconds (also different time units can be used) that will run between two different checks for updates in Salesforce and Database
 
-+ sfdc.watermark.default.expression `2014-02-25T11:00:00.000Z`
-+ database.watermark.default.expression `2014-02-25T11:00:00.000Z`  
-This properties are important ones, as they configure what should be the start point of the synchronization for each system. The date format accepted in SFDC Query Language is either *YYYY-MM-DDThh:mm:ss+hh:mm* or you can use Constants. [More information about Dates in SFDC](http://www.salesforce.com/us/developer/docs/officetoolkit/Content/sforce_api_calls_soql_select_dateformats.htm)
-As a default value for this default properties we provide a groovy expression that starts checking for updates since almost the moment where the template is started (you can check an example [here](https://github.com/mulesoft/template-sfdc2db-account-bidirectional-sync/blob/master/src/main/resources/common.properties#L6))
-
 ### Date transformation-related properties
-As the template uses some date fields in its logic (e.g. deciding whether to apply an update or not) some common format for doing comparisons between them is need. The convention defined is to do the comparison using org.joda.time.DateTime as the common date interface. In order to transform date values provided to DateTime values, the template must include a definition for the following values.  
-
-+ sfdc.date.format `yyyy-MM-dd\\'T\\'HH:mm:ss.SSSZ`
-Salesforce retrieves its dates (e.g. LastModifiedDate) as Strings. This template recives as a parameter the String format String date has in order to get a DateTime object that represents the same moment.
-
-+ database.date.offset `-00:00`
-In the Database case, the object retrieved is a Date, and what needs to be done in order to get a DateTime object that represents the same time of the moment given is being aware of the Database offset.   
++system.time.zone `-03:00`
+You can get this value by running the following SQL selection:
+```
+SELECT @@system_time_zone;
+``` 
 
 ### SalesForce Connector configuration
 + sfdc.username `jorge.drexler@mail.com`
@@ -77,10 +70,14 @@ In the Database case, the object retrieved is a Date, and what needs to be done 
 + sfdc.securityToken `avsfwCUl7apQs56Xq2AKi3X`
 + sfdc.url `https://login.salesforce.com/services/Soap/u/28.0`
 + sfdc.integration.user.id `005n0000000T3QkAAK`
++ sfdc.watermark.default.expression `2014-02-25T11:00:00.000Z`
+The watermark default properties are important ones, as they configure what should be the start point of the synchronization for each system. The date format accepted in SFDC Query Language is either *YYYY-MM-DDThh:mm:ss+hh:mm* or you can use Constants. [More information about Dates in SFDC](http://www.salesforce.com/us/developer/docs/officetoolkit/Content/sforce_api_calls_soql_select_dateformats.htm)
+As a default value for this default properties we provide a groovy expression that starts checking for updates since almost the moment where the template is started (you can check an example [here](https://github.com/mulesoft/template-sfdc2db-account-bidirectional-sync/blob/master/src/main/resources/common.properties#L6))
 
 ### Database Connector configuration
-+ database.url=jdbc:mysql://192.168.224.130:3306/mule?user=mule&password=mule
-+ db.integration.user.id=mule@localhost
++ database.url `jdbc:mysql://localhost:3306/sfdc2db?user=root&password=`
++ database.integration.user.id `mule@localhost`
++ database.watermark.default.expression `2014-02-25T11:00:00.000Z`
 
 If it is required to connect to a different Database there should be provided the jar for the library and changed the value of that field in the connector.
 ]]>
