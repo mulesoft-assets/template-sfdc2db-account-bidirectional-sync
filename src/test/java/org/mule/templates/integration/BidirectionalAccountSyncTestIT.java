@@ -1,3 +1,9 @@
+/**
+ * Mule Anypoint Template
+ * Copyright (c) MuleSoft, Inc.
+ * All rights reserved.  http://www.mulesoft.com
+ */
+
 package org.mule.templates.integration;
 
 import java.util.ArrayList;
