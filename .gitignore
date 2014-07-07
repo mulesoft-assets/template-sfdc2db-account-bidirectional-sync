@@ -56,3 +56,6 @@ target/
 # Test credentials to be use locally only #
 # --------------------------------------- #
 src/test/resources/mule.test.properties
+pom.xml.releaseBackup
+
+release.properties
