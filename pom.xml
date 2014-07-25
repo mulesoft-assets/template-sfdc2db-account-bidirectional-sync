@@ -30,10 +30,6 @@
 							<groupId>org.mule.modules</groupId>
 							<artifactId>mule-module-sfdc</artifactId>
 						</inclusion>
-						<inclusion>
-							<groupId>com.mulesoft.munit.modules</groupId>
-							<artifactId>mule-module-synchronize</artifactId>
-						</inclusion>
 					</inclusions>
 				</configuration>
 			</plugin>
