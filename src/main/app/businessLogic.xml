@@ -45,8 +45,7 @@ payload.remove('LastModifiedDate');]]></expression-component>
                         <db:parameterized-query><![CDATA[UPDATE Account SET
 AccountNumber = #[payload['AccountNumber']], 
 Description = #[payload['Description']],  
-NumberOfEmployees = #[payload['NumberOfEmployees']], 
-Phone = #[payload['Phone']], 
+NumberOfEmployees = #[payload['NumberOfEmployees']],
 Type = #[payload['Type']],	
 LastModifiedDate = CURRENT_TIMESTAMP
 WHERE Name = #[payload['Name']]]]></db:parameterized-query>
@@ -71,7 +70,6 @@ payload.remove('LastModifiedDate');
 	Description,
 	Name,
 	NumberOfEmployees,
-	Phone,
 	Type,
 	SalesforceId,
 	LastModifiedById,
@@ -81,7 +79,6 @@ payload.remove('LastModifiedDate');
 	#[payload['Description']],
 	#[payload['Name']],
 	#[payload['NumberOfEmployees']],
-	#[payload['Phone']],
 	#[payload['Type']],
 	#[payload['Id']],
 	CURRENT_USER,
