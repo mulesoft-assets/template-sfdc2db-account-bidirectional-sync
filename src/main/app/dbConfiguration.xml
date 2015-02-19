@@ -4,7 +4,7 @@
 	xmlns="http://www.mulesoft.org/schema/mule/core"
       xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
       xmlns:spring="http://www.springframework.org/schema/beans"
-      version="EE-3.5.0"
+      version="EE-3.5.2"
       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
       xsi:schemaLocation="http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
 http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
@@ -15,6 +15,6 @@ http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/cor
 	<db:generic-config name="GenericDatabaseConnector"
 		url="${database.url}" driverClassName="com.mysql.jdbc.Driver"
 		doc:name="Generic Database Configuration"
-		doc:description="Include jar for your database and supply correct url pointing to your database eg" />
+		doc:description="Include jar for your database and supply correct url pointing to your database" />
 
 </mule>
