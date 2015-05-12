@@ -2,26 +2,24 @@
 
 <mule xmlns:db="http://www.mulesoft.org/schema/mule/db"
 	xmlns:sfdc="http://www.mulesoft.org/schema/mule/sfdc"
-	xmlns:json="http://www.mulesoft.org/schema/mule/json" xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
 	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
-	xmlns:spring="http://www.springframework.org/schema/beans" version="EE-3.5.0"
+	version="EE-3.6.2"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
-http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
 http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
-http://www.mulesoft.org/schema/mule/sfdc http://www.mulesoft.org/schema/mule/sfdc/current/mule-sfdc.xsd
-http://www.mulesoft.org/schema/mule/json http://www.mulesoft.org/schema/mule/json/current/mule-json.xsd">
+http://www.mulesoft.org/schema/mule/sfdc http://www.mulesoft.org/schema/mule/sfdc/current/mule-sfdc.xsd">
 
-	<sub-flow name="updateAccountInSalesforceFlow" doc:name="updateAccountInSalesforceFlow">
+	<sub-flow name="updateAccountInSalesforceFlow" >
          <sfdc:upsert config-ref="Salesforce" externalIdFieldName="Id" type="Account" doc:name="Update account in A">
              <sfdc:objects ref="#[payload]"/>
          </sfdc:upsert>
         <logger level="INFO" message="Update account in Salesforce result: #[payload]" doc:name="Logger"/>
     </sub-flow>
     
-	<sub-flow name="updateAccountInDatabaseFlow" doc:name="updateAccountInDatabaseFlow">
-                    <db:update config-ref="GenericDatabaseConnector" bulkMode="true" doc:name="update accounts in Database">
-                        <db:parameterized-query><![CDATA[UPDATE Account SET
+	<sub-flow name="updateAccountInDatabaseFlow" >
+                    <db:update config-ref="GenericDatabaseConnector" bulkMode="true" doc:name="Update accounts in Database">
+            <db:parameterized-query><![CDATA[UPDATE Account SET
 	AccountNumber = #[payload['AccountNumber']],
 	AccountSource = #[payload['AccountSource']],
 	AnnualRevenue = #[payload['AnnualRevenue']],
@@ -53,16 +51,17 @@ http://www.mulesoft.org/schema/mule/json http://www.mulesoft.org/schema/mule/jso
 	LastModifiedById = CURRENT_USER,
 	LastModifiedDate = CURRENT_TIMESTAMP
 WHERE Name = #[payload['Name']]]]></db:parameterized-query>
+
                     </db:update>
         <logger level="INFO" message="Update account in Database result: #[payload]" doc:name="Logger"/>
     </sub-flow>
     
-    <sub-flow name="queryAccountFromSalesforceFlow" doc:name="queryAccountFromSalesforceFlow">
+    <sub-flow name="queryAccountFromSalesforceFlow" >
         <sfdc:query-single config-ref="Salesforce" query="SELECT AccountNumber, AccountSource, AnnualRevenue, BillingCity, BillingCountry, BillingPostalCode, BillingState, BillingStreet, Description, Fax, Id, Industry, LastModifiedById, LastModifiedDate, Name, NumberOfEmployees, OwnerId, Ownership, ParentId, Phone, Rating, ShippingCity, ShippingCountry, ShippingPostalCode, ShippingState, ShippingStreet, Sic, SicDesc, Site, TickerSymbol, Type, Website FROM Account WHERE Name = '#[payload['Name']]'" doc:name="Query user from Salesforce"/>
         <logger level="INFO" message="Query Account from Salesforce result: #[payload]" doc:name="Logger"/>
     </sub-flow>
     
-    <sub-flow name="queryAccountFromDatabaseFlow" doc:name="queryAccountFromDatabaseFlow">
+    <sub-flow name="queryAccountFromDatabaseFlow" >
                 <enricher source="#[payload.isEmpty() ? NullPayload.getInstance() : payload[0]]" target="#[payload]" doc:name="store account">
                     <db:select config-ref="GenericDatabaseConnector" doc:name="Query account from Database">
                 <db:parameterized-query><![CDATA[SELECT * FROM Account WHERE Name = #[payload['Name']]]]></db:parameterized-query>
@@ -70,7 +69,7 @@ WHERE Name = #[payload['Name']]]]></db:parameterized-query>
                     </enricher>
         <logger level="INFO" message="Query account from Database result: #[payload]" doc:name="Logger"/>
     </sub-flow>
-    <sub-flow name="insertAccountInDatabaseFlow" doc:name="insertAccountInDatabaseFlow">
+    <sub-flow name="insertAccountInDatabaseFlow" >
                     <db:insert config-ref="GenericDatabaseConnector" bulkMode="true" doc:name="Insert account to Database">
                         <db:parameterized-query><![CDATA[INSERT INTO Account (
 	SalesforceId,
@@ -143,13 +142,13 @@ WHERE Name = #[payload['Name']]]]></db:parameterized-query>
         <logger message="Insert account to Database result: #[payload]" level="INFO" doc:name="Logger"/>
     
     </sub-flow>
-    <sub-flow name="deleteAccountFromSalesforceFlow" doc:name="deleteAccountFromSalesforceFlow">
+    <sub-flow name="deleteAccountFromSalesforceFlow" >
         <sfdc:delete config-ref="Salesforce" doc:name="Delete account from Salesforce">
             <sfdc:ids ref="#[payload]"/>
         </sfdc:delete>
         <logger message="#[payload]" level="INFO" category="FOFO" doc:name="Logger"/>
     </sub-flow>
-    <sub-flow name="deleteAccountFromDatabaseFlow" doc:name="deleteAccountFromDatabaseFlow">
+    <sub-flow name="deleteAccountFromDatabaseFlow" >
         <foreach doc:name="For Each">
             <db:delete config-ref="GenericDatabaseConnector" doc:name="Delete account from Database">
                 <db:parameterized-query><![CDATA[delete from Account where Name = #[payload]]]></db:parameterized-query>
