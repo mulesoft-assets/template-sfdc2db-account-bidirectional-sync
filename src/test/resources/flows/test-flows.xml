@@ -65,13 +65,14 @@ WHERE Name = #[payload['Name']]]]></db:parameterized-query>
                 <enricher source="#[payload.isEmpty() ? NullPayload.getInstance() : payload[0]]" target="#[payload]" doc:name="store account">
                     <db:select config-ref="GenericDatabaseConnector" doc:name="Query account from Database">
                 <db:parameterized-query><![CDATA[SELECT * FROM Account WHERE Name = #[payload['Name']]]]></db:parameterized-query>
+
                     </db:select>
                     </enricher>
         <logger level="INFO" message="Query account from Database result: #[payload]" doc:name="Logger"/>
     </sub-flow>
     <sub-flow name="insertAccountInDatabaseFlow" >
-                    <db:insert config-ref="GenericDatabaseConnector" bulkMode="true" doc:name="Insert account to Database">
-                        <db:parameterized-query><![CDATA[INSERT INTO Account (
+                    <db:insert config-ref="GenericDatabaseConnector"  doc:name="Insert account to Database">
+            <db:parameterized-query><![CDATA[INSERT INTO Account (
 	SalesforceId,
 	AccountNumber,
 	AccountSource,
@@ -138,6 +139,7 @@ WHERE Name = #[payload['Name']]]]></db:parameterized-query>
 	CURRENT_USER,
 	CURRENT_TIMESTAMP
 )]]></db:parameterized-query>
+
                     </db:insert>
         <logger message="Insert account to Database result: #[payload]" level="INFO" doc:name="Logger"/>
     

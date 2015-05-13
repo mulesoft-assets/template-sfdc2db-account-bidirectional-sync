@@ -7,7 +7,6 @@
 package org.mule.templates.integration;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -41,8 +40,8 @@ import com.mulesoft.module.batch.BatchTestHelper;
 @SuppressWarnings("unchecked")
 public class BidirectionalAccountSyncTestIT extends AbstractTemplateTestCase {
 
-	private static final String A_INBOUND_FLOW_NAME = "triggerSyncFromAFlow";
-	private static final String B_INBOUND_FLOW_NAME = "triggerSyncFromBFlow";
+	private static final String A_INBOUND_FLOW_NAME = "triggerSyncFromSalesforceFlow";
+	private static final String B_INBOUND_FLOW_NAME = "triggerSyncFromDatabaseFlow";
 	private static final int TIMEOUT_MILLIS = 60;
 
 	private SubflowInterceptingChainLifecycleWrapper updateAccountInSalesforceFlow;
@@ -125,8 +124,8 @@ public class BidirectionalAccountSyncTestIT extends AbstractTemplateTestCase {
 		
 		SubflowInterceptingChainLifecycleWrapper createAccountInDatabaseFlow = getSubFlow("insertAccountInDatabaseFlow");
 		createAccountInDatabaseFlow.initialise();
-	
-		createAccountInDatabaseFlow.process(getTestEvent(Collections.singletonList(accountDatabase), MessageExchangePattern.REQUEST_RESPONSE));
+		
+		createAccountInDatabaseFlow.process(getTestEvent(accountDatabase, MessageExchangePattern.REQUEST_RESPONSE));
 	
 		// Execution
 		executeWaitAndAssertBatchJob(B_INBOUND_FLOW_NAME);
