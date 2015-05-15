@@ -16,8 +16,9 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Properties;
 
-import org.apache.log4j.LogManager;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 
 public class MySQLDbCreator {
 	private static final Logger log = LogManager.getLogger(MySQLDbCreator.class);
