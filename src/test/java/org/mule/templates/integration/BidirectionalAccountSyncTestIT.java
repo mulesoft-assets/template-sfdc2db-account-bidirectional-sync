@@ -40,22 +40,22 @@ import com.mulesoft.module.batch.BatchTestHelper;
 @SuppressWarnings("unchecked")
 public class BidirectionalAccountSyncTestIT extends AbstractTemplateTestCase {
 
+	private static final int TIMEOUT_MILLIS = 60;
 	private static final String A_INBOUND_FLOW_NAME = "triggerSyncFromSalesforceFlow";
 	private static final String B_INBOUND_FLOW_NAME = "triggerSyncFromDatabaseFlow";
-	private static final int TIMEOUT_MILLIS = 60;
-
-	private SubflowInterceptingChainLifecycleWrapper updateAccountInSalesforceFlow;
-	private SubflowInterceptingChainLifecycleWrapper updateAccountInDatabaseFlow;
-	private InterceptingChainLifecycleWrapper queryAccountFromSalesforceFlow;
-	private InterceptingChainLifecycleWrapper queryAccountFromDatabaseFlow;
-	private BatchTestHelper batchTestHelper;
-	
 	private static final String PATH_TO_TEST_PROPERTIES = "./src/test/resources/mule.test.properties";
 	private static final String PATH_TO_SQL_SCRIPT = "src/main/resources/account.sql";
 	private static final String DATABASE_NAME = "SFDC2DBAccountBiDir" + new Long(new Date().getTime()).toString();
 	private static final MySQLDbCreator DBCREATOR = new MySQLDbCreator(DATABASE_NAME, PATH_TO_SQL_SCRIPT, PATH_TO_TEST_PROPERTIES);
 
+	private SubflowInterceptingChainLifecycleWrapper updateAccountInSalesforceFlow;
+	private SubflowInterceptingChainLifecycleWrapper updateAccountInDatabaseFlow;
+	private InterceptingChainLifecycleWrapper queryAccountFromSalesforceFlow;
+	private InterceptingChainLifecycleWrapper queryAccountFromDatabaseFlow;
+
 	private List<Map<String, Object>> createdAccountsInDatabase = new ArrayList<Map<String, Object>>();
+	
+	private BatchTestHelper batchTestHelper;
 
 	@BeforeClass
 	public static void beforeTestClass() {
@@ -66,8 +66,8 @@ public class BidirectionalAccountSyncTestIT extends AbstractTemplateTestCase {
 
 		// Set default water-mark expression to current time
 		System.clearProperty("watermark.default.expression");
-		DateTime now = new DateTime(DateTimeZone.UTC);
-		DateTimeFormatter dateFormat = DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+		final DateTime now = new DateTime(DateTimeZone.UTC);
+		final DateTimeFormatter dateFormat = DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
 		System.setProperty("watermark.default.expression", now.toString(dateFormat));
 		
 		System.setProperty("database.url", DBCREATOR.getDatabaseUrlWithName());
@@ -113,7 +113,7 @@ public class BidirectionalAccountSyncTestIT extends AbstractTemplateTestCase {
 
 	@Test
 	public void whenUpdatingAnAccountInDatastoreTheBelongingAccountGetsUpdatedInSalesforce() throws MuleException, Exception {
-		Map<String, Object> accountDatabase = new HashMap<String, Object>();
+		final Map<String, Object> accountDatabase = new HashMap<String, Object>();
 		accountDatabase.put("AccountNumber", "123321");
 		accountDatabase.put("Description", "Description");
 		accountDatabase.put("Industry", "Ecommerce");
@@ -122,7 +122,7 @@ public class BidirectionalAccountSyncTestIT extends AbstractTemplateTestCase {
 
 		createdAccountsInDatabase.add(accountDatabase);
 		
-		SubflowInterceptingChainLifecycleWrapper createAccountInDatabaseFlow = getSubFlow("insertAccountInDatabaseFlow");
+		final SubflowInterceptingChainLifecycleWrapper createAccountInDatabaseFlow = getSubFlow("insertAccountInDatabaseFlow");
 		createAccountInDatabaseFlow.initialise();
 		
 		createAccountInDatabaseFlow.process(getTestEvent(accountDatabase, MessageExchangePattern.REQUEST_RESPONSE));
@@ -131,7 +131,7 @@ public class BidirectionalAccountSyncTestIT extends AbstractTemplateTestCase {
 		executeWaitAndAssertBatchJob(B_INBOUND_FLOW_NAME);
 
 		// Assertions
-		Map<String, Object> payload = (Map<String, Object>) queryAccount(accountDatabase, queryAccountFromDatabaseFlow);
+		final Map<String, Object> payload = (Map<String, Object>) queryAccount(accountDatabase, queryAccountFromDatabaseFlow);
 		Assert.assertNotNull("Synchronized Account should not be null", payload);
 		Assert.assertEquals("The Account should have been sync and new Name must match", accountDatabase.get("Name"), payload.get("Name"));
 		Assert.assertEquals("The Account should have been sync and new AccountNumber must match", accountDatabase.get("AccountNumber"), payload.get("AccountNumber"));
@@ -152,10 +152,10 @@ public class BidirectionalAccountSyncTestIT extends AbstractTemplateTestCase {
 	}
 	
 	private void deleteTestAccountsFromSandBoxB(List<Map<String, Object>> createdAccountsInA) throws InitialisationException, MuleException, Exception {
-		SubflowInterceptingChainLifecycleWrapper deleteAccountFromDatabaseFlow = getSubFlow("deleteAccountFromDatabaseFlow");
+		final SubflowInterceptingChainLifecycleWrapper deleteAccountFromDatabaseFlow = getSubFlow("deleteAccountFromDatabaseFlow");
 		deleteAccountFromDatabaseFlow.initialise();
 
-		List<String> idList = new ArrayList<String>();
+		final List<String> idList = new ArrayList<String>();
 		for (Map<String, Object> c : createdAccountsInA) {
 			idList.add(c.get("Name").toString());
 		}
@@ -163,17 +163,17 @@ public class BidirectionalAccountSyncTestIT extends AbstractTemplateTestCase {
 }
 
 	private void deleteTestAccountsFromSandBoxA(List<Map<String, Object>> createdAccountsInB) throws InitialisationException, MuleException, Exception {
-		List<Map<String, Object>> createdAccountsInA = new ArrayList<Map<String, Object>>();
+		final List<Map<String, Object>> createdAccountsInA = new ArrayList<Map<String, Object>>();
 		for (Map<String, Object> c : createdAccountsInB) {
-			Map<String, Object> account = invokeRetrieveFlow(queryAccountFromSalesforceFlow, c);
+			final Map<String, Object> account = invokeRetrieveFlow(queryAccountFromSalesforceFlow, c);
 			if (account != null) {
 				createdAccountsInA.add(account);
 			}
 		}
-		SubflowInterceptingChainLifecycleWrapper deleteAccountFromSalesforceFlow = getSubFlow("deleteAccountFromSalesforceFlow");
+		final SubflowInterceptingChainLifecycleWrapper deleteAccountFromSalesforceFlow = getSubFlow("deleteAccountFromSalesforceFlow");
 		deleteAccountFromSalesforceFlow.initialise();
 
-		List<String> idList = new ArrayList<String>();
+		final List<String> idList = new ArrayList<String>();
 		for (Map<String, Object> c : createdAccountsInA) {
 			idList.add(c.get("Id").toString());
 		}
@@ -181,8 +181,8 @@ public class BidirectionalAccountSyncTestIT extends AbstractTemplateTestCase {
 }
 	
 	protected Map<String, Object> invokeRetrieveFlow(InterceptingChainLifecycleWrapper flow, Map<String, Object> payload) throws Exception {
-		MuleEvent event = flow.process(getTestEvent(payload, MessageExchangePattern.REQUEST_RESPONSE));
-		Object resultPayload = event.getMessage().getPayload();
+		final MuleEvent event = flow.process(getTestEvent(payload, MessageExchangePattern.REQUEST_RESPONSE));
+		final Object resultPayload = event.getMessage().getPayload();
 		return resultPayload instanceof NullPayload ? null : (Map<String, Object>) resultPayload;
 	}
 
