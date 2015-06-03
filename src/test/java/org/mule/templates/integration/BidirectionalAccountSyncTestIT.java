@@ -101,6 +101,7 @@ public class BidirectionalAccountSyncTestIT extends AbstractTemplateTestCase {
 		// Flow for updating a Account in B instance
 		updateAccountInDatabaseFlow = getSubFlow("updateAccountInDatabaseFlow");
 		updateAccountInDatabaseFlow.initialise();
+		updateAccountInDatabaseFlow.setMuleContext(muleContext);
 
 		// Flow for querying the Account in A instance
 		queryAccountFromSalesforceFlow = getSubFlow("queryAccountFromSalesforceFlow");
