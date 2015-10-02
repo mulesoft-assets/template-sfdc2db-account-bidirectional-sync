@@ -1,14 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<mule xmlns:db="http://www.mulesoft.org/schema/mule/db"
+<mule xmlns:metadata="http://www.mulesoft.org/schema/mule/metadata" xmlns:spring="http://www.springframework.org/schema/beans" xmlns:db="http://www.mulesoft.org/schema/mule/db"
 	xmlns:sfdc="http://www.mulesoft.org/schema/mule/sfdc"
 	xmlns="http://www.mulesoft.org/schema/mule/core"
 	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
-	version="EE-3.6.2"
+	version="EE-3.7.2"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
 http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
-http://www.mulesoft.org/schema/mule/sfdc http://www.mulesoft.org/schema/mule/sfdc/current/mule-sfdc.xsd">
+http://www.mulesoft.org/schema/mule/sfdc http://www.mulesoft.org/schema/mule/sfdc/current/mule-sfdc.xsd
+http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd">
 
 	<sub-flow name="updateAccountInSalesforceFlow" >
          <sfdc:upsert config-ref="Salesforce" externalIdFieldName="Id" type="Account" doc:name="Update account in A">
@@ -52,12 +53,13 @@ http://www.mulesoft.org/schema/mule/sfdc http://www.mulesoft.org/schema/mule/sfd
 	LastModifiedDate = CURRENT_TIMESTAMP
 WHERE Name = #[payload['Name']]]]></db:parameterized-query>
 
+
                     </db:update>
         <logger level="INFO" message="Update account in Database result: #[payload]" doc:name="Logger"/>
     </sub-flow>
     
     <sub-flow name="queryAccountFromSalesforceFlow" >
-        <sfdc:query-single config-ref="Salesforce" query="SELECT AccountNumber, AccountSource, AnnualRevenue, BillingCity, BillingCountry, BillingPostalCode, BillingState, BillingStreet, Description, Fax, Id, Industry, LastModifiedById, LastModifiedDate, Name, NumberOfEmployees, OwnerId, Ownership, ParentId, Phone, Rating, ShippingCity, ShippingCountry, ShippingPostalCode, ShippingState, ShippingStreet, Sic, SicDesc, Site, TickerSymbol, Type, Website FROM Account WHERE Name = '#[payload['Name']]'" doc:name="Query user from Salesforce"/>
+        <sfdc:query-single config-ref="Salesforce" query="SELECT AccountNumber, AccountSource, AnnualRevenue, BillingCity, BillingCountry, BillingPostalCode, BillingState, BillingStreet, Description, Fax, Id, Industry, LastModifiedById, LastModifiedDate, Name, NumberOfEmployees, OwnerId, Ownership, ParentId, Phone, Rating, ShippingCity, ShippingCountry, ShippingPostalCode, ShippingState, ShippingStreet, Sic, SicDesc, Site, TickerSymbol, Type, Website FROM Account WHERE Name = '#[payload['Name']]'" doc:name="Query account from Salesforce"/>
         <logger level="INFO" message="Query Account from Salesforce result: #[payload]" doc:name="Logger"/>
     </sub-flow>
     

@@ -4,13 +4,13 @@
 	<parent>
 		<groupId>org.mule.templates</groupId>
 		<artifactId>templates-tooling-parent-pom</artifactId>
-		<version>1.1.9</version>
+		<version>1.2.3</version>
 	</parent>
 	
 	<modelVersion>4.0.0</modelVersion>
 	<artifactId>template-sfdc2db-account-bidirectional-sync</artifactId>
 	<packaging>mule</packaging>
-	<version>1.1.1-SNAPSHOT</version>
+	<version>1.2.0-SNAPSHOT</version>
     <name>sfdc2db-account-bidirectional-sync Mule Anypoint Template Project</name>
     
     <properties>
@@ -54,6 +54,12 @@
 			<version>${mule.version}</version>
 			<scope>provided</scope>
 		</dependency>
+    <dependency>
+            <groupId>com.mulesoft.weave</groupId>
+            <artifactId>mule-plugin-weave_2.11</artifactId>
+            <version>${mule.version}</version>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
 
 	<repositories>
@@ -64,17 +70,18 @@
 			<layout>default</layout>
 		</repository>
 		<repository>
+			<id>mule-ee-releases</id>
+			<name>MuleSoft Releases EE Repository</name>
+			<url>https://repository.mulesoft.org/nexus/content/repositories/releases-ee/</url>
+			<layout>default</layout>
+		</repository>
+		<repository>
 			<id>mulesoft-snapshots</id>
 			<name>MuleSoft Snapshots Repository</name>
 			<url>https://repository.mulesoft.org/nexus/content/repositories/snapshots/</url>
 			<layout>default</layout>
 		</repository>
-		<repository>
-			<id>mule-ee-snapshots</id>
-			<name>MuleEE Releases Repository</name>
-			<url>https://repository-master.mulesoft.org/nexus/content/repositories/ci-snapshots/</url>
-		</repository>
-	</repositories>
+    </repositories>
 	
 	<scm>
 		<connection>scm:git:https://github.com/mulesoft/template-sfdc2db-account-bidirectional-sync.git</connection>
