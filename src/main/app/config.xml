@@ -5,7 +5,7 @@
 	xmlns="http://www.mulesoft.org/schema/mule/core"
 	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
 	xmlns:spring="http://www.springframework.org/schema/beans" 
-	version="EE-3.5.2"
+	version="EE-3.7.2"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
 	xmlns:sfdc="http://www.mulesoft.org/schema/mule/sfdc"
 	xsi:schemaLocation="http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd

@@ -1,16 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<mule xmlns:db="http://www.mulesoft.org/schema/mule/db" 
+<mule xmlns:spring="http://www.springframework.org/schema/beans" xmlns:db="http://www.mulesoft.org/schema/mule/db" 
 	xmlns:batch="http://www.mulesoft.org/schema/mule/batch"
 	xmlns:sfdc="http://www.mulesoft.org/schema/mule/sfdc"
 	xmlns="http://www.mulesoft.org/schema/mule/core" 
-	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
-	version="EE-3.6.2"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"	
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	version="EE-3.7.2"
 	xsi:schemaLocation="http://www.mulesoft.org/schema/mule/batch http://www.mulesoft.org/schema/mule/batch/current/mule-batch.xsd
 http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
 http://www.mulesoft.org/schema/mule/sfdc http://www.mulesoft.org/schema/mule/sfdc/current/mule-sfdc.xsd
-http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd">
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd">
 
 	<flow name="triggerSyncFromSalesforceFlow" 
 		processingStrategy="synchronous" initialState="started">
@@ -21,7 +22,7 @@ http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/cu
 				selector="MAX" selector-expression="#[payload.LastModifiedDate]" />
             <processor-chain doc:name="Processor Chain">
                 <expression-component doc:name="Lock processing to avoid two syncs occurring at the same time"><![CDATA[app.registry['PollSynchronizer'].lock();]]></expression-component>
-                <sfdc:query config-ref="Salesforce" query="dsql:SELECT AccountNumber, AccountSource, AnnualRevenue, BillingCity, BillingCountry, BillingPostalCode, BillingState, BillingStreet, Description, Fax, Id, Industry, LastModifiedById, LastModifiedDate, Name, NumberOfEmployees, OwnerId, Ownership, ParentId, Phone, Rating, ShippingCity, ShippingCountry, ShippingPostalCode, ShippingState, ShippingStreet, Sic, SicDesc, Site, TickerSymbol, Type, Website FROM Account WHERE LastModifiedDate &gt; #[flowVars['lastQueryDateA']] ORDER BY LastModifiedDate ASC LIMIT 200" doc:name="Fetch accounts from Salesforce"/>
+                <sfdc:query config-ref="Salesforce" query="dsql:SELECT AccountNumber, AccountSource, AnnualRevenue, BillingCity, BillingCountry, BillingPostalCode, BillingState, BillingStreet, Description, Fax, Id, Industry, LastModifiedById, LastModifiedDate, Name, NumberOfEmployees, OwnerId, Ownership, ParentId, Phone, Rating, ShippingCity, ShippingCountry, ShippingPostalCode, ShippingState, ShippingStreet, Sic, SicDesc, Site, TickerSymbol, Type, Website FROM Account WHERE LastModifiedDate &gt; #[flowVars['lastQueryDateA']] AND LastModifiedById &lt;&gt; '${sfdc.integration.user.id}' ORDER BY LastModifiedDate ASC LIMIT 200" doc:name="Fetch accounts from Salesforce"/>
             </processor-chain>
 
 		</poll>
@@ -39,7 +40,8 @@ http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/cu
             <processor-chain doc:name="Processor Chain">
                 <expression-component doc:name="Lock processing to avoid two syncs occurring at the same time"><![CDATA[app.registry['PollSynchronizer'].lock();]]></expression-component>
                 <db:select config-ref="GenericDatabaseConnector" doc:name="Fetch accounts from Database">
-                    <db:parameterized-query><![CDATA[SELECT SalesforceId, Name, AccountNumber, Description, LastModifiedById, LastModifiedDate, NumberOfEmployees, Phone, Type FROM Account WHERE LastModifiedDate > #[flowVars['lastQueryDateB']] ORDER BY LastModifiedDate ASC]]></db:parameterized-query>
+                    <db:parameterized-query><![CDATA[SELECT Name, AccountNumber, Description, LastModifiedDate, NumberOfEmployees, Phone, Type FROM Account WHERE LastModifiedDate > #[flowVars['lastQueryDateB']] AND LastModifiedById <> '${database.integration.user.id}' ORDER BY LastModifiedDate ASC]]></db:parameterized-query>
+
 
                 </db:select>
             </processor-chain>
