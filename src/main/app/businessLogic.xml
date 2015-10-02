@@ -22,7 +22,7 @@ http://www.mulesoft.org/schema/mule/ee/dw http://www.mulesoft.org/schema/mule/ee
 			<batch:step name="getAccountInDatabaseStep" >
 				<enricher
 					source="#[payload.isEmpty() ? null : payload[0][LastModifiedDate]]"
-					target="#[recordVars['lastModifiedDateInTargetInstance']]" doc:name="store 'LastModifiedDate' in record var">
+					target="#[payload.LastModifiedDateFromDB]" doc:name="store 'LastModifiedDateFromDB' in record var">
                     <db:select config-ref="GenericDatabaseConnector" doc:name="Query account">
                         <db:parameterized-query><![CDATA[SELECT LastModifiedDate FROM Account WHERE Name = #[payload['Name']]]]></db:parameterized-query>
 
@@ -31,14 +31,15 @@ http://www.mulesoft.org/schema/mule/ee/dw http://www.mulesoft.org/schema/mule/ee
 				</enricher>
 			</batch:step>
 
-			<batch:step name="updateAccountInDatabaseStep" accept-expression="(recordVars['lastModifiedDateInTargetInstance'] != null) &amp;&amp; org.mule.templates.date.DateUtils.ISOStringDateToDateTime(payload['LastModifiedDate']).isAfter(org.mule.templates.date.DateUtils.dateToDateTime(recordVars['lastModifiedDateInTargetInstance']))">
+			<batch:step name="updateAccountInDatabaseStep" accept-expression="(payload.LastModifiedDateFromDB != null) &amp;&amp; org.mule.templates.date.DateUtils.ISOStringDateToDateTime(payload['LastModifiedDate']).isAfter(org.mule.templates.date.DateUtils.dateToDateTime(payload.LastModifiedDateFromDB))">
 
 				<batch:commit size="200" doc:name="Batch Commit">
                     <dw:transform-message doc:name="Prepare Accounts for update">
                         <dw:set-payload><![CDATA[%dw 1.0
 %output application/java
 ---
-payload map ($ - 'LastModifiedDate')]]></dw:set-payload>
+payload map ($ - 'LastModifiedDate'
+			   - 'LastModifiedDateFromDB')]]></dw:set-payload>
                     </dw:transform-message>
 					<db:update config-ref="GenericDatabaseConnector" bulkMode="true"
 						doc:name="Update accounts">
@@ -59,14 +60,15 @@ WHERE Name = #[payload['Name']]]]></db:parameterized-query>
 				</batch:commit>
 			</batch:step>
 
-			<batch:step name="insertAccountsInDatabaseStep" accept-expression="recordVars['lastModifiedDateInTargetInstance'] == null)">
+			<batch:step name="insertAccountsInDatabaseStep" accept-expression="payload.LastModifiedDateFromDB == null">
 
 				<batch:commit size="200" doc:name="Batch Commit">
                     <dw:transform-message doc:name="Prepare Accounts for insert">
                         <dw:set-payload><![CDATA[%dw 1.0
 %output application/java
 ---
-payload map ($ - 'LastModifiedDate')]]></dw:set-payload>
+payload map ($ - 'LastModifiedDate'
+			   - 'LastModifiedDateFromDB')]]></dw:set-payload>
                     </dw:transform-message>
 					<db:insert config-ref="GenericDatabaseConnector" bulkMode="true"
 						doc:name="Insert accounts">
@@ -105,21 +107,22 @@ payload map ($ - 'LastModifiedDate')]]></dw:set-payload>
 		<batch:threading-profile poolExhaustedAction="WAIT" />
 		<batch:process-records>
 			<batch:step name="getAccountInSalesforceStep" >
-				<enricher   doc:name="store 'LastModifiedDate' in record var and 'Id' in payload">
+				<enricher   doc:name="store 'LastModifiedDateFromSFDC' and 'Id' in payload">
                     <sfdc:query-single config-ref="Salesforce" query="SELECT Id, LastModifiedDate FROM Account WHERE (Name = '#[payload['Name']]')" doc:name="Query account"/>
-                    <enrich source="#[payload == null ? null : payload.LastModifiedDate]" target="#[recordVars['lastModifiedDateInTargetInstance']]"/>
+                    <enrich source="#[payload == null ? null : payload.LastModifiedDate]" target="#[payload.LastModifiedDateFromSFDC]"/>
                     <enrich source="#[payload == null ? null : payload.Id]" target="#[payload.Id]"/>
 				</enricher>
 			</batch:step>
 
-			<batch:step name="upsertAccountInSalesforceStep" accept-expression="recordVars['lastModifiedDateInTargetInstance'] == null ? true : org.mule.templates.date.DateUtils.dateToDateTime(payload['LastModifiedDate']).isAfter(org.mule.templates.date.DateUtils.ISOStringDateToDateTime(recordVars['lastModifiedDateInTargetInstance']))">
+			<batch:step name="upsertAccountInSalesforceStep" accept-expression="payload.LastModifiedDateFromSFDC == null ? true : org.mule.templates.date.DateUtils.dateToDateTime(payload['LastModifiedDate']).isAfter(org.mule.templates.date.DateUtils.ISOStringDateToDateTime(payload.LastModifiedDateFromSFDC))">
 
 				<batch:commit size="200" doc:name="Batch Commit">
                     <dw:transform-message doc:name="Prepare Accounts for upsert">
                         <dw:set-payload><![CDATA[%dw 1.0
 %output application/java
 ---
-payload map ($ - 'LastModifiedDate')]]></dw:set-payload>
+payload map ($ - 'LastModifiedDate'
+			   - 'LastModifiedDateFromSFDC')]]></dw:set-payload>
                     </dw:transform-message>
 					<sfdc:upsert config-ref="Salesforce"
 						externalIdFieldName="Id" type="Account" doc:name="Upsert account">
