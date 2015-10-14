@@ -184,6 +184,7 @@ In order to use this Mule Anypoint Template you need to configure properties (Cr
 ### Polling properties
 + polling.frequency `10000`  
 This are the milliseconds (also different time units can be used) that will run between two different checks for updates in Salesforce and Database
++ page.size `200`
 
 ### Date transformation-related properties
 +system.time.zone `-03:00`
@@ -196,7 +197,7 @@ SELECT @@system_time_zone;
 + sfdc.username `jorge.drexler@mail.com`
 + sfdc.password `Noctiluca123`
 + sfdc.securityToken `avsfwCUl7apQs56Xq2AKi3X`
-+ sfdc.url `https://login.salesforce.com/services/Soap/u/28.0`
++ sfdc.url `https://login.salesforce.com/services/Soap/u/32.0`
 + sfdc.integration.user.id `005n0000000T3QkAAK`
 + sfdc.watermark.default.expression `2014-02-25T11:00:00.000Z`
 The watermark default properties are important ones, as they configure what should be the start point of the synchronization for each system. The date format accepted in SFDC Query Language is either *YYYY-MM-DDThh:mm:ss+hh:mm* or you can use Constants. [More information about Dates in SFDC](http://www.salesforce.com/us/developer/docs/officetoolkit/Content/sforce_api_calls_soql_select_dateformats.htm)
