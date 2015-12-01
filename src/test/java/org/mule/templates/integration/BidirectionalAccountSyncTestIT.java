@@ -7,7 +7,6 @@
 package org.mule.templates.integration;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -17,6 +16,7 @@ import org.joda.time.DateTimeZone;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -41,19 +41,23 @@ import com.mulesoft.module.batch.BatchTestHelper;
 public class BidirectionalAccountSyncTestIT extends AbstractTemplateTestCase {
 
 	private static final int TIMEOUT_MILLIS = 60;
-	private static final String A_INBOUND_FLOW_NAME = "triggerSyncFromSalesforceFlow";
-	private static final String B_INBOUND_FLOW_NAME = "triggerSyncFromDatabaseFlow";
+	private static final String SFDC_INBOUND_FLOW_NAME = "triggerSyncFromSalesforceFlow";
+	private static final String DB_INBOUND_FLOW_NAME = "triggerSyncFromDatabaseFlow";
 	private static final String PATH_TO_TEST_PROPERTIES = "./src/test/resources/mule.test.properties";
 	private static final String PATH_TO_SQL_SCRIPT = "src/main/resources/account.sql";
-	private static final String DATABASE_NAME = "SFDC2DBAccountBiDir" + new Long(new Date().getTime()).toString();
+	private static final String DATABASE_NAME = "SFDC2DBAccountBiDir" + System.currentTimeMillis();
 	private static final MySQLDbCreator DBCREATOR = new MySQLDbCreator(DATABASE_NAME, PATH_TO_SQL_SCRIPT, PATH_TO_TEST_PROPERTIES);
 
-	private SubflowInterceptingChainLifecycleWrapper updateAccountInSalesforceFlow;
-	private SubflowInterceptingChainLifecycleWrapper updateAccountInDatabaseFlow;
+	private SubflowInterceptingChainLifecycleWrapper insertAccountIntoSalesforceFlow;
+//	private SubflowInterceptingChainLifecycleWrapper updateAccountInDatabaseFlow;
 	private InterceptingChainLifecycleWrapper queryAccountFromSalesforceFlow;
 	private InterceptingChainLifecycleWrapper queryAccountFromDatabaseFlow;
+	private SubflowInterceptingChainLifecycleWrapper insertAccountIntoDatabaseFlow;
+	private SubflowInterceptingChainLifecycleWrapper deleteAccountFromDatabaseFlow;
+	private SubflowInterceptingChainLifecycleWrapper deleteAccountFromSalesforceFlow;
+	
 
-	private List<Map<String, Object>> createdAccountsInDatabase = new ArrayList<Map<String, Object>>();
+	private List<Map<String, Object>> testAccounts = new ArrayList<Map<String, Object>>();
 	
 	private BatchTestHelper batchTestHelper;
 
@@ -62,13 +66,14 @@ public class BidirectionalAccountSyncTestIT extends AbstractTemplateTestCase {
 		System.setProperty("page.size", "1000");
 
 		// Set polling frequency to 10 seconds
-		System.setProperty("polling.frequency", "10000");
+		System.setProperty("poll.frequencyMillis", "10000");
+		System.setProperty("poll.startDelayMillis", "1000");
 
-		// Set default water-mark expression to current time
-		System.clearProperty("watermark.default.expression");
+		// Set default water-mark expressions to current time
 		final DateTime now = new DateTime(DateTimeZone.UTC);
 		final DateTimeFormatter dateFormat = DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
-		System.setProperty("watermark.default.expression", now.toString(dateFormat));
+		System.setProperty("sfdc.watermark.default.expression", now.toString(dateFormat));
+		System.setProperty("db.watermark.default.expression", now.toString(dateFormat));
 		
 		System.setProperty("database.url", DBCREATOR.getDatabaseUrlWithName());
 		DBCREATOR.setUpDatabase();
@@ -83,61 +88,63 @@ public class BidirectionalAccountSyncTestIT extends AbstractTemplateTestCase {
 
 	@After
 	public void tearDown() throws Exception {
-		deleteTestAccountsFromSandBoxA(createdAccountsInDatabase);
-		deleteTestAccountsFromSandBoxB(createdAccountsInDatabase);
+		deleteTestAccountsFromSalesforce(testAccounts);
+		deleteTestAccountsFromDatabase(testAccounts);
+		testAccounts.clear();
+	}
+	
+	@AfterClass
+	public static void tearDownDB() throws Exception {
 		DBCREATOR.tearDownDataBase();
 	}
 
-	private void stopAutomaticPollTriggering() throws MuleException {
-		stopFlowSchedulers(A_INBOUND_FLOW_NAME);
-		stopFlowSchedulers(B_INBOUND_FLOW_NAME);
-	}
-
-	private void getAndInitializeFlows() throws InitialisationException {
-		// Flow for updating a Account in A instance
-		updateAccountInSalesforceFlow = getSubFlow("updateAccountInSalesforceFlow");
-		updateAccountInSalesforceFlow.initialise();
-
-		// Flow for updating a Account in B instance
-		updateAccountInDatabaseFlow = getSubFlow("updateAccountInDatabaseFlow");
-		updateAccountInDatabaseFlow.initialise();
-		updateAccountInDatabaseFlow.setMuleContext(muleContext);
-
-		// Flow for querying the Account in A instance
-		queryAccountFromSalesforceFlow = getSubFlow("queryAccountFromSalesforceFlow");
-		queryAccountFromSalesforceFlow.initialise();
-
-		// Flow for querying the Account in B instance
-		queryAccountFromDatabaseFlow = getSubFlow("queryAccountFromDatabaseFlow");
-		queryAccountFromDatabaseFlow.initialise();
-	}
-
 	@Test
-	public void whenUpdatingAnAccountInDatastoreTheBelongingAccountGetsUpdatedInSalesforce() throws MuleException, Exception {
-		final Map<String, Object> accountDatabase = new HashMap<String, Object>();
-		accountDatabase.put("AccountNumber", "123321");
-		accountDatabase.put("Description", "Description");
-		accountDatabase.put("Industry", "Ecommerce");
-		accountDatabase.put("Name", buildUniqueName(TEMPLATE_NAME, "Test-"));
-		accountDatabase.put("NumberOfEmployees", 289);
-
-		createdAccountsInDatabase.add(accountDatabase);
+	public void testDatabase2Salesforce() throws MuleException, Exception {
+		final Map<String, Object> testAaccount = createTestAccountObject();
+		testAccounts.add(testAaccount);
 		
-		final SubflowInterceptingChainLifecycleWrapper createAccountInDatabaseFlow = getSubFlow("insertAccountInDatabaseFlow");
-		createAccountInDatabaseFlow.initialise();
-		
-		createAccountInDatabaseFlow.process(getTestEvent(accountDatabase, MessageExchangePattern.REQUEST_RESPONSE));
+		insertAccountIntoDatabaseFlow.process(getTestEvent(testAaccount, MessageExchangePattern.REQUEST_RESPONSE));
 	
 		// Execution
-		executeWaitAndAssertBatchJob(B_INBOUND_FLOW_NAME);
+		executeWaitAndAssertBatchJob(DB_INBOUND_FLOW_NAME);
 
 		// Assertions
-		final Map<String, Object> payload = (Map<String, Object>) queryAccount(accountDatabase, queryAccountFromDatabaseFlow);
+		final Map<String, Object> payload = (Map<String, Object>) queryAccount(testAaccount, queryAccountFromSalesforceFlow);
 		Assert.assertNotNull("Synchronized Account should not be null", payload);
-		Assert.assertEquals("The Account should have been sync and new Name must match", accountDatabase.get("Name"), payload.get("Name"));
-		Assert.assertEquals("The Account should have been sync and new AccountNumber must match", accountDatabase.get("AccountNumber"), payload.get("AccountNumber"));
-		Assert.assertEquals("The Account should have been sync and new NumberOfEmployees must match", accountDatabase.get("NumberOfEmployees"), payload.get("NumberOfEmployees"));
-}
+		Assert.assertEquals("The Account should have been sync and new Name must match", testAaccount.get("Name"), payload.get("Name"));
+		Assert.assertEquals("The Account should have been sync and new AccountNumber must match", testAaccount.get("AccountNumber"), payload.get("AccountNumber"));
+		Assert.assertEquals("The Account should have been sync and new NumberOfEmployees must match", String.valueOf(testAaccount.get("NumberOfEmployees")), payload.get("NumberOfEmployees"));
+	}
+	
+	
+	@Test
+	public void testSalesforce2Database() throws MuleException, Exception {
+		final Map<String, Object> testAccount = createTestAccountObject();
+		testAccounts.add(testAccount);
+		
+		insertAccountIntoSalesforceFlow.process(getTestEvent(testAccount, MessageExchangePattern.REQUEST_RESPONSE));
+	
+		// Execution
+		executeWaitAndAssertBatchJob(SFDC_INBOUND_FLOW_NAME);
+
+		// Assertions
+		final Map<String, Object> payload = (Map<String, Object>) queryAccount(testAccount, queryAccountFromDatabaseFlow);
+		Assert.assertNotNull("Synchronized Account should not be null", payload);
+		Assert.assertEquals("The Account should have been sync and new Name must match", testAccount.get("Name"), payload.get("Name"));
+		Assert.assertEquals("The Account should have been sync and new AccountNumber must match", testAccount.get("AccountNumber"), payload.get("AccountNumber"));
+		Assert.assertEquals("The Account should have been sync and new NumberOfEmployees must match", testAccount.get("NumberOfEmployees"), payload.get("NumberOfEmployees"));
+	}
+	
+	
+	private Map<String, Object> createTestAccountObject(){
+		final Map<String, Object> testAccount = new HashMap<String, Object>();
+		testAccount.put("AccountNumber", "123321");
+		testAccount.put("Description", "Description");
+		testAccount.put("Industry", "Ecommerce");
+		testAccount.put("Name", buildUniqueName(TEMPLATE_NAME, "Test-"));
+		testAccount.put("NumberOfEmployees", 289);
+		return testAccount;
+	}
 
 	private Object queryAccount(Map<String, Object> account, InterceptingChainLifecycleWrapper queryAccountFlow) throws MuleException, Exception {
 		return queryAccountFlow.process(getTestEvent(account, MessageExchangePattern.REQUEST_RESPONSE)).getMessage().getPayload();
@@ -152,31 +159,26 @@ public class BidirectionalAccountSyncTestIT extends AbstractTemplateTestCase {
 		batchTestHelper.assertJobWasSuccessful();
 	}
 	
-	private void deleteTestAccountsFromSandBoxB(List<Map<String, Object>> createdAccountsInA) throws InitialisationException, MuleException, Exception {
-		final SubflowInterceptingChainLifecycleWrapper deleteAccountFromDatabaseFlow = getSubFlow("deleteAccountFromDatabaseFlow");
-		deleteAccountFromDatabaseFlow.initialise();
-
-		final List<String> idList = new ArrayList<String>();
-		for (Map<String, Object> c : createdAccountsInA) {
-			idList.add(c.get("Name").toString());
+	private void deleteTestAccountsFromDatabase(List<Map<String, Object>> createdAccountsInSFDC) throws InitialisationException, MuleException, Exception {
+		final List<String> nameList = new ArrayList<String>();
+		for (Map<String, Object> account : createdAccountsInSFDC) {
+			nameList.add(account.get("Name").toString());
 		}
-		deleteAccountFromDatabaseFlow.process(getTestEvent(idList, MessageExchangePattern.REQUEST_RESPONSE));
-}
+		deleteAccountFromDatabaseFlow.process(getTestEvent(nameList, MessageExchangePattern.REQUEST_RESPONSE));
+	}
 
-	private void deleteTestAccountsFromSandBoxA(List<Map<String, Object>> createdAccountsInB) throws InitialisationException, MuleException, Exception {
-		final List<Map<String, Object>> createdAccountsInA = new ArrayList<Map<String, Object>>();
-		for (Map<String, Object> c : createdAccountsInB) {
-			final Map<String, Object> account = invokeRetrieveFlow(queryAccountFromSalesforceFlow, c);
+	private void deleteTestAccountsFromSalesforce(List<Map<String, Object>> accountList) throws InitialisationException, MuleException, Exception {
+		final List<Map<String, Object>> testAccounts = new ArrayList<Map<String, Object>>();
+		for (Map<String, Object> testAccount : accountList) {
+			final Map<String, Object> account = invokeRetrieveFlow(queryAccountFromSalesforceFlow, testAccount);
 			if (account != null) {
-				createdAccountsInA.add(account);
+				testAccounts.add(account);
 			}
 		}
-		final SubflowInterceptingChainLifecycleWrapper deleteAccountFromSalesforceFlow = getSubFlow("deleteAccountFromSalesforceFlow");
-		deleteAccountFromSalesforceFlow.initialise();
 
 		final List<String> idList = new ArrayList<String>();
-		for (Map<String, Object> c : createdAccountsInA) {
-			idList.add(c.get("Id").toString());
+		for (Map<String, Object> account : testAccounts) {
+			idList.add(account.get("Id").toString());
 		}
 		deleteAccountFromSalesforceFlow.process(getTestEvent(idList, MessageExchangePattern.REQUEST_RESPONSE));
 }
@@ -185,6 +187,34 @@ public class BidirectionalAccountSyncTestIT extends AbstractTemplateTestCase {
 		final MuleEvent event = flow.process(getTestEvent(payload, MessageExchangePattern.REQUEST_RESPONSE));
 		final Object resultPayload = event.getMessage().getPayload();
 		return resultPayload instanceof NullPayload ? null : (Map<String, Object>) resultPayload;
+	}
+	
+	private void stopAutomaticPollTriggering() throws MuleException {
+		stopFlowSchedulers(SFDC_INBOUND_FLOW_NAME);
+		stopFlowSchedulers(DB_INBOUND_FLOW_NAME);
+	}
+	
+	private void getAndInitializeFlows() throws InitialisationException {
+		// Flow for updating a Account in A instance
+		insertAccountIntoSalesforceFlow = getSubFlow("insertAccountIntoSalesforceFlow");
+		insertAccountIntoSalesforceFlow.initialise();
+
+		// Flow for querying the Account in A instance
+		queryAccountFromSalesforceFlow = getSubFlow("queryAccountFromSalesforceFlow");
+		queryAccountFromSalesforceFlow.initialise();
+
+		// Flow for querying the Account in B instance
+		queryAccountFromDatabaseFlow = getSubFlow("queryAccountFromDatabaseFlow");
+		queryAccountFromDatabaseFlow.initialise();
+		
+		insertAccountIntoDatabaseFlow = getSubFlow("insertAccountIntoDatabaseFlow");
+		insertAccountIntoDatabaseFlow.initialise();
+		
+		deleteAccountFromDatabaseFlow = getSubFlow("deleteAccountFromDatabaseFlow");
+		deleteAccountFromDatabaseFlow.initialise();
+		
+		deleteAccountFromSalesforceFlow = getSubFlow("deleteAccountFromSalesforceFlow");
+		deleteAccountFromSalesforceFlow.initialise();
 	}
 
 }
