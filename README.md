@@ -182,16 +182,10 @@ Mule Studio provides you with really easy way to deploy your Template directly t
 In order to use this Mule Anypoint Template you need to configure properties (Credentials, configurations, etc.) either in properties file or in CloudHub as Environment Variables. Detail list with examples:
 ### Application configuration
 ### Polling properties
-+ polling.frequency `10000`  
-This are the milliseconds (also different time units can be used) that will run between two different checks for updates in Salesforce and Database
++ poll.frequencyMillis `10000`  
+Thesse are the milliseconds (also different time units can be used) that will run between two different checks for updates in Salesforce and Database
++ poll.startDelayMillis `0` 
 + page.size `200`
-
-### Date transformation-related properties
-+system.time.zone `-03:00`
-You can get this value by running the following SQL selection:
-```
-SELECT @@system_time_zone;
-``` 
 
 ### SalesForce Connector configuration
 + sfdc.username `jorge.drexler@mail.com`
@@ -199,14 +193,21 @@ SELECT @@system_time_zone;
 + sfdc.securityToken `avsfwCUl7apQs56Xq2AKi3X`
 + sfdc.url `https://login.salesforce.com/services/Soap/u/32.0`
 + sfdc.integration.user.id `005n0000000T3QkAAK`
-+ sfdc.watermark.default.expression `2014-02-25T11:00:00.000Z`
++ sfdc.watermark.default.expression `2015-11-26T11:00:00.000Z`
 The watermark default properties are important ones, as they configure what should be the start point of the synchronization for each system. The date format accepted in SFDC Query Language is either *YYYY-MM-DDThh:mm:ss+hh:mm* or you can use Constants. [More information about Dates in SFDC](http://www.salesforce.com/us/developer/docs/officetoolkit/Content/sforce_api_calls_soql_select_dateformats.htm)
 As a default value for this default properties we provide a groovy expression that starts checking for updates since almost the moment where the template is started (you can check an example [here](https://github.com/mulesoft/template-sfdc2db-account-bidirectional-sync/blob/master/src/main/resources/common.properties#L6))
 
 ### Database Connector configuration
 + database.url `jdbc:mysql://localhost:3306/sfdc2db?user=root&password=`
 + database.integration.user.id `mule@localhost`
-+ database.watermark.default.expression `2014-02-25T11:00:00.000Z`
++ database.watermark.default.expression `2015-11-26T11:00:00.000Z`
+
+### Date transformation-related properties
++database.timeZoneOffset `-03:00`
+You can get this value by running the following SQL selection:
+```
+SELECT @@system_time_zone;
+``` 
 
 If it is required to connect to a different Database there should be provided the jar for the library and changed the value of that field in the connector.
 

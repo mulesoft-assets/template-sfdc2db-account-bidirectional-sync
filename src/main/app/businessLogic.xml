@@ -6,7 +6,7 @@
       xmlns:db="http://www.mulesoft.org/schema/mule/db"
       xmlns:sfdc="http://www.mulesoft.org/schema/mule/sfdc"
       xmlns:batch="http://www.mulesoft.org/schema/mule/batch"
-      version="EE-3.7.2"
+      
       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
       xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
 http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
@@ -27,11 +27,12 @@ http://www.mulesoft.org/schema/mule/ee/dw http://www.mulesoft.org/schema/mule/ee
                         <db:parameterized-query><![CDATA[SELECT LastModifiedDate FROM Account WHERE Name = #[payload['Name']]]]></db:parameterized-query>
 
 
+
                     </db:select>
 				</enricher>
 			</batch:step>
 
-			<batch:step name="updateAccountInDatabaseStep" accept-expression="(payload.LastModifiedDateFromDB != null) &amp;&amp; org.mule.templates.date.DateUtils.ISOStringDateToDateTime(payload['LastModifiedDate']).isAfter(org.mule.templates.date.DateUtils.dateToDateTime(payload.LastModifiedDateFromDB))">
+			<batch:step name="updateAccountInDatabaseStep" accept-expression="(payload.LastModifiedDateFromDB != null) &amp;&amp; org.joda.time.DateTime(payload['LastModifiedDate']).isAfter(org.mule.templates.date.DateUtils.dateToDateTimeUsingProvidedOffset(payload.LastModifiedDateFromDB, &quot;${database.timeZoneOffset}&quot;))">
 
 				<batch:commit size="200" doc:name="Batch Commit">
                     <dw:transform-message doc:name="Prepare Accounts for update">
@@ -50,6 +51,7 @@ NumberOfEmployees = #[payload['NumberOfEmployees']],
 Type = #[payload['Type']],	
 LastModifiedDate = CURRENT_TIMESTAMP
 WHERE Name = #[payload['Name']]]]></db:parameterized-query>
+
 
 
 
@@ -92,6 +94,7 @@ payload map ($ - 'LastModifiedDate'
 	CURRENT_TIMESTAMP
 )]]></db:parameterized-query>
 
+
 					</db:insert>
 					<logger message="Insert Database response: #[payload]"	level="INFO" doc:name="Log response" />
 				</batch:commit>
@@ -114,7 +117,7 @@ payload map ($ - 'LastModifiedDate'
 				</enricher>
 			</batch:step>
 
-			<batch:step name="upsertAccountInSalesforceStep" accept-expression="payload.LastModifiedDateFromSFDC == null ? true : org.mule.templates.date.DateUtils.dateToDateTime(payload['LastModifiedDate']).isAfter(org.mule.templates.date.DateUtils.ISOStringDateToDateTime(payload.LastModifiedDateFromSFDC))">
+			<batch:step name="upsertAccountInSalesforceStep" accept-expression="payload.LastModifiedDateFromSFDC == null ? true : org.mule.templates.date.DateUtils.dateToDateTimeUsingProvidedOffset(payload['LastModifiedDate'], &quot;${database.timeZoneOffset}&quot;).isAfter(new org.joda.time.DateTime(payload.LastModifiedDateFromSFDC))">
 
 				<batch:commit size="200" doc:name="Batch Commit">
                     <dw:transform-message doc:name="Prepare Accounts for upsert">

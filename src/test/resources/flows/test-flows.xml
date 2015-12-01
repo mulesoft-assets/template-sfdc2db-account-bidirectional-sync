@@ -1,62 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<mule xmlns:metadata="http://www.mulesoft.org/schema/mule/metadata" xmlns:spring="http://www.springframework.org/schema/beans" xmlns:db="http://www.mulesoft.org/schema/mule/db"
+<mule xmlns:metadata="http://www.mulesoft.org/schema/mule/metadata" 
+	xmlns:spring="http://www.springframework.org/schema/beans" 
+	xmlns:db="http://www.mulesoft.org/schema/mule/db"
 	xmlns:sfdc="http://www.mulesoft.org/schema/mule/sfdc"
 	xmlns="http://www.mulesoft.org/schema/mule/core"
 	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
-	version="EE-3.7.2"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
 http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
 http://www.mulesoft.org/schema/mule/sfdc http://www.mulesoft.org/schema/mule/sfdc/current/mule-sfdc.xsd
 http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd">
+    <sfdc:config name="Salesforce_test" username="${sfdc.test.username}" password="${sfdc.test.password}" securityToken="${sfdc.test.securityToken}" doc:name="Salesforce: Basic authentication" url="${sfdc.test.url}"/>
 
-	<sub-flow name="updateAccountInSalesforceFlow" >
-         <sfdc:upsert config-ref="Salesforce" externalIdFieldName="Id" type="Account" doc:name="Update account in A">
-             <sfdc:objects ref="#[payload]"/>
-         </sfdc:upsert>
-        <logger level="INFO" message="Update account in Salesforce result: #[payload]" doc:name="Logger"/>
-    </sub-flow>
-    
-	<sub-flow name="updateAccountInDatabaseFlow" >
-                    <db:update config-ref="GenericDatabaseConnector" bulkMode="true" doc:name="Update accounts in Database">
-            <db:parameterized-query><![CDATA[UPDATE Account SET
-	AccountNumber = #[payload['AccountNumber']],
-	AccountSource = #[payload['AccountSource']],
-	AnnualRevenue = #[payload['AnnualRevenue']],
-	BillingCity = #[payload['BillingCity']],
-	BillingCountry = #[payload['BillingCountry']],
-	BillingPostalCode = #[payload['BillingPostalCode']],
-	BillingState = #[payload['BillingState']],
-	BillingStreet = #[payload['BillingStreet']],
-	Description = #[payload['Description']],
-	Fax = #[payload['Fax']],
-	Industry = #[payload['Industry']],
-	NumberOfEmployees = #[payload['NumberOfEmployees']],
-	OwnerId = #[payload['OwnerId']],
-	Ownership = #[payload['Ownership']],
-	ParentId = #[payload['ParentId']],
-	Phone = #[payload['Phone']],
-	Rating = #[payload['Rating']],
-	ShippingCity = #[payload['ShippingCity']],
-	ShippingCountry = #[payload['ShippingCountry']],
-	ShippingPostalCode = #[payload['ShippingPostalCode']],
-	ShippingState = #[payload['ShippingState']],
-	ShippingStreet = #[payload['ShippingStreet']],
-	Sic = #[payload['Sic']],
-	SicDesc = #[payload['SicDesc']],
-	Site = #[payload['Site']],
-	TickerSymbol = #[payload['TickerSymbol']],
-	Type = #[payload['Type']],
-	Website = #[payload['Website']],
-	LastModifiedById = CURRENT_USER,
-	LastModifiedDate = CURRENT_TIMESTAMP
-WHERE Name = #[payload['Name']]]]></db:parameterized-query>
-
-
-                    </db:update>
-        <logger level="INFO" message="Update account in Database result: #[payload]" doc:name="Logger"/>
-    </sub-flow>
     
     <sub-flow name="queryAccountFromSalesforceFlow" >
         <sfdc:query-single config-ref="Salesforce" query="SELECT AccountNumber, AccountSource, AnnualRevenue, BillingCity, BillingCountry, BillingPostalCode, BillingState, BillingStreet, Description, Fax, Id, Industry, LastModifiedById, LastModifiedDate, Name, NumberOfEmployees, OwnerId, Ownership, ParentId, Phone, Rating, ShippingCity, ShippingCountry, ShippingPostalCode, ShippingState, ShippingStreet, Sic, SicDesc, Site, TickerSymbol, Type, Website FROM Account WHERE Name = '#[payload['Name']]'" doc:name="Query account from Salesforce"/>
@@ -68,11 +24,18 @@ WHERE Name = #[payload['Name']]]]></db:parameterized-query>
                     <db:select config-ref="GenericDatabaseConnector" doc:name="Query account from Database">
                 <db:parameterized-query><![CDATA[SELECT * FROM Account WHERE Name = #[payload['Name']]]]></db:parameterized-query>
 
+
                     </db:select>
                     </enricher>
         <logger level="INFO" message="Query account from Database result: #[payload]" doc:name="Logger"/>
     </sub-flow>
-    <sub-flow name="insertAccountInDatabaseFlow" >
+    <sub-flow name="insertAccountIntoSalesforceFlow">
+        <sfdc:create-single config-ref="Salesforce_test" type="Account" doc:name="Insert account in A">
+            <sfdc:object ref="#[payload]"/>
+        </sfdc:create-single>
+        <logger message="Update account in Salesforce result: #[payload]" level="INFO" doc:name="Logger"/>
+    </sub-flow>
+    <sub-flow name="insertAccountIntoDatabaseFlow" >
                     <db:insert config-ref="GenericDatabaseConnector"  doc:name="Insert account to Database">
             <db:parameterized-query><![CDATA[INSERT INTO Account (
 	SalesforceId,
@@ -142,6 +105,7 @@ WHERE Name = #[payload['Name']]]]></db:parameterized-query>
 	CURRENT_TIMESTAMP
 )]]></db:parameterized-query>
 
+
                     </db:insert>
         <logger message="Insert account to Database result: #[payload]" level="INFO" doc:name="Logger"/>
     
@@ -156,6 +120,7 @@ WHERE Name = #[payload['Name']]]]></db:parameterized-query>
         <foreach doc:name="For Each">
             <db:delete config-ref="GenericDatabaseConnector" doc:name="Delete account from Database">
                 <db:parameterized-query><![CDATA[delete from Account where Name = #[payload]]]></db:parameterized-query>
+
             </db:delete>
         </foreach>
     </sub-flow>
