@@ -49,7 +49,6 @@ public class BidirectionalAccountSyncTestIT extends AbstractTemplateTestCase {
 	private static final MySQLDbCreator DBCREATOR = new MySQLDbCreator(DATABASE_NAME, PATH_TO_SQL_SCRIPT, PATH_TO_TEST_PROPERTIES);
 
 	private SubflowInterceptingChainLifecycleWrapper insertAccountIntoSalesforceFlow;
-//	private SubflowInterceptingChainLifecycleWrapper updateAccountInDatabaseFlow;
 	private InterceptingChainLifecycleWrapper queryAccountFromSalesforceFlow;
 	private InterceptingChainLifecycleWrapper queryAccountFromDatabaseFlow;
 	private SubflowInterceptingChainLifecycleWrapper insertAccountIntoDatabaseFlow;
@@ -113,7 +112,7 @@ public class BidirectionalAccountSyncTestIT extends AbstractTemplateTestCase {
 		Assert.assertNotNull("Synchronized Account should not be null", payload);
 		Assert.assertEquals("The Account should have been sync and new Name must match", testAaccount.get("Name"), payload.get("Name"));
 		Assert.assertEquals("The Account should have been sync and new AccountNumber must match", testAaccount.get("AccountNumber"), payload.get("AccountNumber"));
-		Assert.assertEquals("The Account should have been sync and new NumberOfEmployees must match", String.valueOf(testAaccount.get("NumberOfEmployees")), payload.get("NumberOfEmployees"));
+		Assert.assertEquals("The Account should have been sync and new NumberOfEmployees must match", String.valueOf(testAaccount.get("NumberOfEmployees")), "" + payload.get("NumberOfEmployees"));
 	}
 	
 	
@@ -195,20 +194,17 @@ public class BidirectionalAccountSyncTestIT extends AbstractTemplateTestCase {
 	}
 	
 	private void getAndInitializeFlows() throws InitialisationException {
-		// Flow for updating a Account in A instance
 		insertAccountIntoSalesforceFlow = getSubFlow("insertAccountIntoSalesforceFlow");
 		insertAccountIntoSalesforceFlow.initialise();
 
-		// Flow for querying the Account in A instance
+		insertAccountIntoDatabaseFlow = getSubFlow("insertAccountIntoDatabaseFlow");
+		insertAccountIntoDatabaseFlow.initialise();
+ 
 		queryAccountFromSalesforceFlow = getSubFlow("queryAccountFromSalesforceFlow");
 		queryAccountFromSalesforceFlow.initialise();
 
-		// Flow for querying the Account in B instance
 		queryAccountFromDatabaseFlow = getSubFlow("queryAccountFromDatabaseFlow");
 		queryAccountFromDatabaseFlow.initialise();
-		
-		insertAccountIntoDatabaseFlow = getSubFlow("insertAccountIntoDatabaseFlow");
-		insertAccountIntoDatabaseFlow.initialise();
 		
 		deleteAccountFromDatabaseFlow = getSubFlow("deleteAccountFromDatabaseFlow");
 		deleteAccountFromDatabaseFlow.initialise();
