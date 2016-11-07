@@ -4,13 +4,13 @@
 	<parent>
 		<groupId>org.mule.templates</groupId>
 		<artifactId>templates-tooling-parent-pom</artifactId>
-		<version>1.2.7</version>
+		<version>1.3.6</version>
 	</parent>
 
 	<modelVersion>4.0.0</modelVersion>
 	<artifactId>template-sfdc2db-account-bidirectional-sync</artifactId>
 	<packaging>mule</packaging>
-	<version>1.2.3-SNAPSHOT</version>
+	<version>1.3.0-SNAPSHOT</version>
 	<name>sfdc2db-account-bidirectional-sync Mule Anypoint Template Project</name>
 
 	<properties>
@@ -20,8 +20,8 @@
 	<build>
 		<plugins>
 			<plugin>
-				<groupId>org.mule.tools</groupId>
-				<artifactId>maven-mule-plugin</artifactId>
+				<groupId>org.mule.tools.maven</groupId>
+				<artifactId>mule-app-maven-plugin</artifactId>
 				<version>${maven.mule.plugin.version}</version>
 				<configuration>
 					<copyToAppsDirectory>true</copyToAppsDirectory>
@@ -55,7 +55,7 @@
 		</dependency>
 		<dependency>
 			<groupId>com.mulesoft.weave</groupId>
-			<artifactId>mule-plugin-weave_2.11</artifactId>
+			<artifactId>mule-plugin-weave</artifactId>
 			<version>${mule.version}</version>
 			<scope>provided</scope>
 		</dependency>
