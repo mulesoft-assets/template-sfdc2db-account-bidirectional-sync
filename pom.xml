@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>org.mule.templates</groupId>
 		<artifactId>templates-tooling-parent-pom</artifactId>
-		<version>1.3.6</version>
+		<version>1.3.7</version>
 	</parent>
 
 	<modelVersion>4.0.0</modelVersion>
@@ -22,7 +22,6 @@
 			<plugin>
 				<groupId>org.mule.tools.maven</groupId>
 				<artifactId>mule-app-maven-plugin</artifactId>
-				<version>${maven.mule.plugin.version}</version>
 				<configuration>
 					<copyToAppsDirectory>true</copyToAppsDirectory>
 					<inclusions>
