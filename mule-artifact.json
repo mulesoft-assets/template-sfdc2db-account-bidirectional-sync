@@ -1,0 +1,22 @@
+{
+  "configs": [
+    "businessLogic.xml",
+    "config.xml",
+    "endpoints.xml",
+    "errorHandling.xml"
+  ],
+  "redeploymentEnabled": true,
+  "name": "template-sfdc2db-account-bidirectional-sync",
+  "minMuleVersion": "4.0.0",
+  "requiredProduct": "MULE_EE",
+  "classLoaderModelLoaderDescriptor": {
+    "id": "mule",
+    "attributes": {
+      "exportedResources": []
+    }
+  },
+  "bundleDescriptorLoader": {
+    "id": "mule",
+    "attributes": {}
+  }
+}
