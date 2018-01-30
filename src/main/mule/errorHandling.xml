@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd">
+	<flow name="errorHandlingFlow" doc:id="764725d5-59f2-497a-ae9c-f4f1b8c4ae50" >
+		<logger level="ERROR" doc:name="Log the error" doc:id="d40acff3-5fb2-470f-ac9f-389a2584b5a6" message="An error occured during account synchronisation!"/>
+	</flow>
+</mule>

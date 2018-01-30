@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:db="http://www.mulesoft.org/schema/mule/db"
+	xmlns:os="http://www.mulesoft.org/schema/mule/os" 
+	xmlns:salesforce="http://www.mulesoft.org/schema/mule/salesforce"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="
+http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/salesforce http://www.mulesoft.org/schema/mule/salesforce/current/mule-salesforce.xsd
+http://www.mulesoft.org/schema/mule/os http://www.mulesoft.org/schema/mule/os/current/mule-os.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd">
+<flow name="schedulerFlow" doc:id="aff4106d-d2f6-4366-940a-a380dcb1cf73" >
+		<scheduler doc:name="Scheduler" doc:id="58b7c776-fbee-4753-9bea-f6cc3e037efd" >
+			<scheduling-strategy >
+				<fixed-frequency frequency="${scheduler.frequency}" startDelay="${scheduler.startDelay}"/>
+			</scheduling-strategy>
+		</scheduler>
+		<os:retrieve key="syncState" doc:name="Retrieve sync state" objectStore="SchedulerStatus" target="syncState">
+			<os:default-value><![CDATA[fromSalesforce]]></os:default-value>
+		</os:retrieve>
+		<choice doc:name="SyncState?" doc:id="b4703d83-780b-4e2d-bf5d-51b1566d66e2">
+			<when expression="#[(vars.syncState != 'running' and vars.syncState == 'fromSalesforce') or vars.syncState == null]">
+				<logger level="INFO" doc:name="Sync from SFDC to DB" doc:id="c9cd1c27-5978-4ad8-b87f-99da49944447" message="Synchronisation from SFDC to DB has been triggered" />
+				<os:store key="syncState" doc:name="Set sync state to running" doc:id="340ac5e0-764f-4164-aeaa-14e616987553" objectStore="SchedulerStatus">
+					<os:value><![CDATA[running]]></os:value>
+				</os:store>
+				<flow-ref doc:name="querySalesforceFlow" doc:id="b0c87553-d459-4f12-940c-0f8f19892266" name="querySalesforceFlow" />
+						<flow-ref doc:name="syncFromSalesforceToDatabase" doc:id="43633fd4-8ec3-4899-8a82-93b88f816122" name="syncFromSalesforceToDatabase" />
+			
+
+</when>
+			<when expression="#[vars.syncState != 'running' and vars.syncState == 'fromDatabase']">
+				<logger level="INFO" doc:name="Sync from DB to SFDC" doc:id="840599bf-2442-45d6-b66d-fbe11593bd60" message="Synchronisation from DB to SFDC has been triggered" />
+				<os:store key="syncState" doc:name="Set sync state to running" doc:id="5059b820-0895-4454-9e50-e686d0f07758" objectStore="SchedulerStatus">
+					<os:value><![CDATA[running]]></os:value>
+				</os:store>
+				<flow-ref doc:name="queryDatabaseFlow" doc:id="121efa5b-33a7-4c76-aa72-3112507c4c0b" name="queryDatabaseFlow" />
+						<flow-ref doc:name="syncFromDatabaseToSalesforce" doc:id="d8baf0c3-ace8-4d57-80c5-f7ea614d3946" name="syncFromDatabaseToSalesforce" />
+			
+
+</when>
+			<otherwise>
+				<logger level="INFO" doc:name="Batch running" doc:id="bf955eec-4baf-4836-b7fd-7d77ff5ebcb1" message="Synchronisation in progress" />
+			</otherwise>
+		</choice>
+		<error-handler >
+			<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="488b507d-e26c-4c56-8759-8bb4f6645d71" type="ANY">
+				<flow-ref doc:name="errorHandlingFlow" doc:id="afdaf73c-0137-4d60-84f6-5c41234771a3" name="errorHandlingFlow"/>
+			</on-error-propagate>
+		</error-handler>
+	</flow>
+		<flow name="querySalesforceFlow">
+		<os:retrieve key="watermark" target="lastQueryDateSFDC" doc:name="Retrieve lastQueryDateSfdc" objectStore="watermarkStoreSFDC">
+        	<os:default-value><![CDATA[${watermark.default.expression}]]></os:default-value>
+    	</os:retrieve>
+    	<salesforce:query doc:name="Query Accounts from Salesforce" doc:id="b6ee7f69-41e5-4cce-9d6f-5e1901002515" config-ref="Salesforce_Sfdc_config">
+			<salesforce:salesforce-query >SELECT AccountNumber, AccountSource, AnnualRevenue, BillingCity, BillingCountry, BillingPostalCode, BillingState, BillingStreet, Description, Fax, Id, Industry, LastModifiedById, LastModifiedDate, Name, NumberOfEmployees, OwnerId, Ownership, ParentId, Phone, Rating, ShippingCity, ShippingCountry, ShippingPostalCode, ShippingState, ShippingStreet, Sic, SicDesc, Site, TickerSymbol, Type, Website FROM Account WHERE LastModifiedDate &gt; :lastModifiedDate AND LastModifiedById != '${sfdc.integration.user.id}' ORDER BY LastModifiedDate ASC LIMIT 300</salesforce:salesforce-query>
+				<salesforce:parameters><![CDATA[#[output applicaton/java
+---
+{
+	"lastModifiedDate" : vars.lastQueryDateSFDC
+}]]]></salesforce:parameters>
+		</salesforce:query>
+		<logger level="INFO" doc:name="Logger" doc:id="03d8a9c4-47d1-4ee4-844b-d08db0d88ec3" message="#['Input SFDC data: ' ++ write(payload, 'application/json', {'indent': false})]"/>
+		<os:store key="watermark" failOnNullValue="false" objectStore="watermarkStoreSFDC" doc:name="Store lastQueryDateSfdc">
+        <os:value><![CDATA[#[max(payload map $.LastModifiedDate)]]]></os:value>
+    </os:store>
+</flow>
+<flow name="queryDatabaseFlow">
+		<os:retrieve key="watermark" objectStore="watermarkStoreDB" target="lastQueryDateDB" doc:name="Retrieve lastQueryDateDB">
+        <os:default-value><![CDATA[${watermark.default.expression}]]></os:default-value>
+    </os:retrieve>
+    <db:select doc:name="Select Accounts from DB" doc:id="4d6d6589-52f5-4493-9d97-92729058cd26" config-ref="Database_Config">
+			<db:sql >SELECT Name, AccountNumber, Description, LastModifiedDate, NumberOfEmployees, Phone, Type 
+FROM Account  
+WHERE LastModifiedDate &gt; :lastUpdate AND LastModifiedById != '${db.integration.user.id}'
+ORDER BY LastModifiedDate ASC</db:sql>
+			<db:input-parameters ><![CDATA[#[{'lastUpdate' : vars.lastQueryDateDB}]]]></db:input-parameters>
+		</db:select>
+    <logger level="INFO" doc:name="Logger" doc:id="f857f3b4-ebfb-426e-8e47-87d62118aeee" message="#['Input DB data: ' ++ write(payload, 'application/json', {'indent': false})]"/>
+		<os:store key="watermark" failOnNullValue="false" objectStore="watermarkStoreDB" doc:name="Store lastQueryDateDB">
+        <os:value><![CDATA[#[max(payload map $.LastModifiedDate)]]]></os:value>
+    </os:store>
+</flow>
+</mule>

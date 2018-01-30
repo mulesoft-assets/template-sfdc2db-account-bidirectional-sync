@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:os="http://www.mulesoft.org/schema/mule/os"
+	xmlns:salesforce="http://www.mulesoft.org/schema/mule/salesforce"
+	xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:batch="http://www.mulesoft.org/schema/mule/batch"
+	xmlns:db="http://www.mulesoft.org/schema/mule/db" 
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd 
+http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/batch http://www.mulesoft.org/schema/mule/batch/current/mule-batch.xsd
+http://www.mulesoft.org/schema/mule/salesforce http://www.mulesoft.org/schema/mule/salesforce/current/mule-salesforce.xsd
+http://www.mulesoft.org/schema/mule/os http://www.mulesoft.org/schema/mule/os/current/mule-os.xsd">
+
+<flow name="syncFromSalesforceToDatabase" doc:id="8759532e-79b7-4789-990c-dc8e162bfd67" >
+		<batch:job jobName="syncFromSalesforceToDatabaseBatch" doc:id="204892ae-0d97-4326-beae-310c8d52b7a6">
+			<batch:process-records>
+				<batch:step name="getAccountFromDatabaseStep" doc:id="89713774-362a-4e92-9bdc-41e31802bf38">
+					<db:select doc:name="Select Account from DB" doc:id="e9624255-6c8a-422f-a5ab-ac502b7f3668" config-ref="Database_Config" target="IdDateInDB">
+						<db:sql >SELECT Id, LastModifiedDate FROM Account WHERE Name = :name</db:sql>
+						<db:input-parameters ><![CDATA[#[{'name' : payload.Name}]]]></db:input-parameters>
+					</db:select>
+					<ee:transform doc:name="Set Id and LastModifiedDate from matching account" doc:id="c119f87d-9095-4962-b961-efe507b06a0c">
+						<ee:message>
+							<ee:set-payload><![CDATA[%dw 2.0
+output application/java
+---
+payload ++ {
+	IdDB: if(sizeOf(vars.IdDateInDB) > 0) vars.IdDateInDB[0].Id else null, 
+	LastModifiedDateDB: if(sizeOf(vars.IdDateInDB) > 0) vars.IdDateInDB[0].LastModifiedDate else null
+}]]></ee:set-payload>
+						</ee:message>
+					</ee:transform>
+					<remove-variable doc:name="Remove Variable IdDateInDB" doc:id="dc2a8789-aad5-4931-a9dd-385815696ac5" variableName="IdDateInDB"/>
+				</batch:step>
+				<batch:step name="insertAccountToDatabase" doc:id="78a74ab4-9b91-416d-985a-acda2ac377ec" acceptExpression="payload.IdDB == null">
+					<batch:aggregator doc:name="Batch Aggregator" doc:id="1ad86a98-643e-494a-a90a-32daab0b03cd" size="${page.size}">
+						<ee:transform doc:name="Map Accounts for insert" doc:id="d484063f-6d81-42ce-98ef-7cec51b04673">
+							<ee:message>
+								<ee:set-payload><![CDATA[%dw 2.0
+output application/java
+---
+payload map ($ - 'LastModifiedDate'
+			   - 'LastModifiedDateDB'
+			   - 'IdDB')]]></ee:set-payload>
+							</ee:message>
+						</ee:transform>
+						<db:bulk-insert doc:name="Bulk insert accounts to Database" doc:id="6d828c21-ec5f-4107-a59a-b0a73508a911" config-ref="Database_Config">
+							<db:sql >INSERT INTO Account (
+	AccountNumber,
+	Description,
+	Name,
+	NumberOfEmployees,
+	Type,
+	SalesforceId,
+	LastModifiedById,
+	LastModifiedDate
+) VALUES (
+	:AccountNumber,
+	:Description,
+	:Name,
+	:NumberOfEmployees,
+	:Type,
+	:Id,
+	CURRENT_USER(),
+	CURRENT_TIMESTAMP()
+)</db:sql>
+						</db:bulk-insert>
+						<logger level="INFO" doc:name="Log insert" doc:id="fbeb42b3-b5c3-44f0-addd-4ca9788f97f1" message="Insert in DB: #[payload]"/>
+					</batch:aggregator>
+				</batch:step>
+				<batch:step name="updateAccountInDatabase" doc:id="78a74ab4-9b91-416d-985a-acda2ac377eb" acceptExpression="payload.IdDB != null  and (payload.LastModifiedDateDB &lt; payload.LastModifiedDate)">
+					<batch:aggregator doc:name="Batch Aggregator" doc:id="1ad86a98-643e-494a-a90a-32daab0b03cc" size="${page.size}">
+						<ee:transform doc:name="Map Accounts for update" doc:id="d484063f-6d81-42ce-98ef-7cec51b04672">
+							<ee:message>
+								<ee:set-payload><![CDATA[%dw 2.0
+output application/java
+---
+payload map ($ - 'LastModifiedDate'
+			   - 'LastModifiedDateDB')
++ Id: vars.IdDB]]></ee:set-payload>
+							</ee:message>
+						</ee:transform>
+						<db:bulk-update doc:name="Bulk update accounts in Database" doc:id="ee6c2f71-3d4d-4f9d-a5da-bf9b31b26801" config-ref="Database_Config">
+							<db:sql >UPDATE Account SET
+AccountNumber = :AccountNumber, 
+Name = :Name,
+Description = :Description,  
+NumberOfEmployees = :NumberOfEmployees,
+Type = :Type,	
+LastModifiedDate = CURRENT_TIMESTAMP(),
+LastModifiedById = CURRENT_USER()
+WHERE Id = vars.IdDB</db:sql>
+						</db:bulk-update>
+						<logger level="INFO" doc:name="Log update" doc:id="fbeb42b3-b5c3-44f0-addd-4ca9788f97f0" message="Update in Database: #[write(payload, 'application/json', {'indent': false})]"/>
+					</batch:aggregator>
+				</batch:step>				
+			</batch:process-records>
+			<batch:on-complete >
+				<os:store key="syncState" doc:name="Set sync state to fromDatabase" doc:id="f08de372-2fb9-4aef-80ca-f6da2241fc75" objectStore="SchedulerStatus">
+					<os:value><![CDATA[fromDatabase]]></os:value>
+				</os:store>
+			</batch:on-complete>
+		
+</batch:job>
+	</flow>
+	<flow name="syncFromDatabaseToSalesforce" doc:id="8759532e-79b7-4789-990c-dc8e162bfd67" >
+		<batch:job jobName="syncFromDatabaseToSalesforceBatch" doc:id="204892ae-0d97-4326-beae-310c8d52b7a6">
+			<batch:process-records>
+				<batch:step name="getAccountFromSalesforceStep" doc:id="89713774-362a-4e92-9bdc-41e31802bf38">
+					<salesforce:query-single doc:name="Query Account from Salesforce" doc:id="d8ff60c9-df2c-49bd-af44-6e2974d7b768" config-ref="Salesforce_Sfdc_config" target="IdDateInSalesforce">
+						<salesforce:salesforce-query >SELECT Id, LastModifiedDate FROM Account WHERE Name = ':name'</salesforce:salesforce-query>
+						<salesforce:parameters ><![CDATA[#[output applicaton/java
+---
+{
+	"name" : payload.Name
+}]]]></salesforce:parameters>
+					</salesforce:query-single>
+					<ee:transform doc:name="Set Id and LastModifiedDate from matching account" doc:id="c119f87d-9095-4962-b961-efe507b06a0c">
+						<ee:message>
+							<ee:set-payload><![CDATA[%dw 2.0
+output application/java
+---
+payload ++ {
+	(Id: vars.IdDateInSalesforce.Id) if vars.IdDateInSalesforce.Id != null, 
+	(LastModifiedDateSFDC: vars.IdDateInSalesforce.LastModifiedDate) if vars.IdDateInSalesforce.LastModifiedDate != null
+}]]></ee:set-payload>
+						</ee:message>
+					</ee:transform>
+					<remove-variable doc:name="Remove Variable IdDateInSalesforce" doc:id="7bbd9b67-7ebc-4886-a813-14dc7b00df30" variableName="IdDateInSalesforce" />
+				</batch:step>
+				<batch:step name="upsertAccountInSalesforce" doc:id="78a74ab4-9b91-416d-985a-acda2ac377ec" acceptExpression="payload.Id == null  or (payload.LastModifiedDateSFDC &lt; payload.LastModifiedDate)">
+					<batch:aggregator doc:name="Batch Aggregator" doc:id="1ad86a98-643e-494a-a90a-32daab0b03cd" size="${page.size}">
+						<ee:transform doc:name="Map Accounts for insert" doc:id="d484063f-6d81-42ce-98ef-7cec51b04673">
+							<ee:message>
+								<ee:set-payload><![CDATA[%dw 2.0
+output application/java
+---
+payload map ($ - 'LastModifiedDate'
+			   - 'LastModifiedDateSFDC')
+]]></ee:set-payload>
+							</ee:message>
+						</ee:transform>
+						<salesforce:upsert-bulk type="Account" doc:name="Upsert bulk - Accounts in Salesforce" doc:id="525936a5-2183-41a3-9ea3-c4f1fd14020d" config-ref="Salesforce_Sfdc_config" externalIdFieldName="Id"/>
+						<logger level="INFO" doc:name="Log upsert" doc:id="fbeb42b3-b5c3-44f0-addd-4ca9788f97f1" message="Upsert in Salesforce: #[write(payload, 'application/json', {'indent': false})]"/>
+					</batch:aggregator>
+				</batch:step>
+			</batch:process-records>
+			<batch:on-complete >
+				<os:store key="syncState" doc:name="Set sync state to fromSalesforce" doc:id="f08de372-2fb9-4aef-80ca-f6da2241fc75" objectStore="SchedulerStatus">
+					<os:value><![CDATA[fromSalesforce]]></os:value>
+				</os:store>
+			</batch:on-complete>
+		
+</batch:job>
+	</flow>
+</mule>
