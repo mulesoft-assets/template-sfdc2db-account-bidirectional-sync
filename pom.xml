@@ -57,11 +57,6 @@
 	</build>
 
 	<dependencies>
-		<dependency>
-			<groupId>org.mule.connectors</groupId>
-			<artifactId>mule-http-connector</artifactId>
-			<classifier>mule-plugin</classifier>
-		</dependency>
     	<dependency>
             <groupId>org.mule.connectors</groupId>
             <artifactId>mule-sfdc-connector</artifactId>
