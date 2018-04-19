@@ -23,7 +23,7 @@ This template is customized for MySQL. To use it with different SQL implementati
 
 To make this Anypoint Template run, there are certain preconditions that must be considered. All of them deal with the preparations in both, 
 that must be made in order for all to run smoothly. 
-**Failling to do so could lead to unexpected behavior of the template.**
+**Failing to do so could lead to unexpected behavior of the template.**
 ]]>
 		</section>
 		<section id="run_it">
