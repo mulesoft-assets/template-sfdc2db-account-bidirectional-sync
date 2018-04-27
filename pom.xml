@@ -58,8 +58,8 @@
 
 	<dependencies>
     	<dependency>
-            <groupId>org.mule.connectors</groupId>
-            <artifactId>mule-sfdc-connector</artifactId>
+            <groupId>com.mulesoft.connectors</groupId>
+			<artifactId>mule-salesforce-connector</artifactId>
             <classifier>mule-plugin</classifier>
         </dependency>
     	<dependency>
@@ -72,7 +72,8 @@
             <artifactId>munit-runner</artifactId>
             <classifier>mule-plugin</classifier>
             <scope>test</scope>
-        </dependency>	<dependency>
+        </dependency>	
+		<dependency>
             <groupId>com.mulesoft.munit</groupId>
             <artifactId>munit-tools</artifactId>
             <classifier>mule-plugin</classifier>
@@ -83,13 +84,11 @@
             <artifactId>mule-scripting-module</artifactId>
             <classifier>mule-plugin</classifier>
         </dependency>
-        
     	<dependency>
             <groupId>org.mule.connectors</groupId>
             <artifactId>mule-db-connector</artifactId>
             <classifier>mule-plugin</classifier>
         </dependency>
-        
         <dependency>
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
@@ -97,4 +96,3 @@
     </dependencies>
 
 </project>
-
