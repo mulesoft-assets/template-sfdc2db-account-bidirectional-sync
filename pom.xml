@@ -1,21 +1,18 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?xml version='1.0' encoding='utf-8'?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-	
-	<parent>
-	    <groupId>org.mule.templates</groupId>
-	    <artifactId>templates-tooling-parent-pom</artifactId>
-	    <version>2.1.0-SNAPSHOT</version>
-	</parent>
-	
-	<modelVersion>4.0.0</modelVersion>
-	<artifactId>template-sfdc2db-account-bidirectional-sync</artifactId>
+    <parent>
+        <groupId>org.mule.templates</groupId>
+        <artifactId>templates-tooling-parent-pom</artifactId>
+        <version>2.1.0-SNAPSHOT</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+    <artifactId>template-sfdc2db-account-bidirectional-sync</artifactId>
     <version>2.1.0-SNAPSHOT</version>
     <packaging>mule-application</packaging>
-	<name>template-sfdc2db-account-bidirectional-sync</name>
-
-	<build>
-		<plugins>
-			<plugin>
+    <name>template-sfdc2db-account-bidirectional-sync</name>
+    <build>
+        <plugins>
+            <plugin>
                 <groupId>com.mulesoft.munit.tools</groupId>
                 <artifactId>munit-maven-plugin</artifactId>
                 <version>${munit.version}</version>
@@ -39,52 +36,51 @@
                 </configuration>
             </plugin>
             <plugin>
-				<groupId>org.mule.tools.maven</groupId>
-				<artifactId>mule-maven-plugin</artifactId>
-				<version>${mule.maven.plugin.version}</version>
-				<extensions>true</extensions>
-				<configuration>
+                <groupId>org.mule.tools.maven</groupId>
+                <artifactId>mule-maven-plugin</artifactId>
+                <version>${mule.maven.plugin.version}</version>
+                <extensions>true</extensions>
+                <configuration>
                     <sharedLibraries>
                         <sharedLibrary>
                             <groupId>mysql</groupId>
                             <artifactId>mysql-connector-java</artifactId>
                         </sharedLibrary>
                     </sharedLibraries>
-				<classifier>mule-application</classifier>
+                    <classifier>mule-application</classifier>
                 </configuration>
-			</plugin>
+            </plugin>
         </plugins>
-	</build>
-
-	<dependencies>
-    	<dependency>
+    </build>
+    <dependencies>
+        <dependency>
             <groupId>com.mulesoft.connectors</groupId>
-			<artifactId>mule-salesforce-connector</artifactId>
+            <artifactId>mule-salesforce-connector</artifactId>
             <classifier>mule-plugin</classifier>
         </dependency>
-    	<dependency>
+        <dependency>
             <groupId>org.mule.connectors</groupId>
             <artifactId>mule-objectstore-connector</artifactId>
             <classifier>mule-plugin</classifier>
         </dependency>
-    	<dependency>
+        <dependency>
             <groupId>com.mulesoft.munit</groupId>
             <artifactId>munit-runner</artifactId>
             <classifier>mule-plugin</classifier>
             <scope>test</scope>
-        </dependency>	
-		<dependency>
+        </dependency>
+        <dependency>
             <groupId>com.mulesoft.munit</groupId>
             <artifactId>munit-tools</artifactId>
             <classifier>mule-plugin</classifier>
             <scope>test</scope>
         </dependency>
-    	<dependency>
+        <dependency>
             <groupId>org.mule.modules</groupId>
             <artifactId>mule-scripting-module</artifactId>
             <classifier>mule-plugin</classifier>
         </dependency>
-    	<dependency>
+        <dependency>
             <groupId>org.mule.connectors</groupId>
             <artifactId>mule-db-connector</artifactId>
             <classifier>mule-plugin</classifier>
@@ -92,7 +88,14 @@
         <dependency>
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
-		</dependency>
+        </dependency>
     </dependencies>
-
+    <repositories>
+        <repository>
+            <id>anypoint-exchange</id>
+            <name>Anypoint Exchange</name>
+            <url>https://maven.anypoint.mulesoft.com/api/v1/maven</url>
+            <layout>default</layout>
+        </repository>
+    </repositories>
 </project>
