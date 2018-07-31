@@ -145,7 +145,9 @@ Once you have imported you Anypoint Template into Anypoint Studio you need to fo
 + Complete all the properties required as per the examples in the section [Properties to be configured](#propertiestobeconfigured)
 + Once that is done, right click on you Anypoint Template project folder 
 + Hover you mouse over `"Run as"`
-+ Click on  `"Mule Application"`
++ Click on  `"Mule Application (configure)"`
++ Inside the dialog, select Environment and set the variable `"mule.env"` to the value `"dev"`
++ Click `"Run"`
 
 
 ### Running on Mule ESB stand alone <a name="runonmuleesbstandalone"/>
