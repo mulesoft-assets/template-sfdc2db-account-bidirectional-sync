@@ -1,4 +1,4 @@
-0<?xml version="1.0"?>
+<?xml version="1.0"?>
 <configuration>
 	<placeholders>
 		<placeholder id="template_name">Salesforce To Database Account Bidirectional Synchronization</placeholder>
