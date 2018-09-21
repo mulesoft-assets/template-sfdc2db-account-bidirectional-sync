@@ -1,77 +1,74 @@
-<?xml version="1.0"?>
+0<?xml version="1.0"?>
 <configuration>
 	<placeholders>
-		<placeholder id="template_name">Salesforce To Database Account Bidirectional Synchronization</placeholder>
+		<placeholder id="template_name">Salesforce To database Account Bidirectional Synchronization</placeholder>
 	</placeholders>
 	<sections>
 		<section id="use_case">
-			This Template should serve as a foundation for setting an online bi-directional sync of Accounts between Salesforce and Database instances with ability to specify filtering criteria.
-The main behavior of this template is fetching data for changes (new or modified Accounts) that have occurred in Salesforce and Database instances during a certain defined period of time. For those Accounts, that were identified not present in the target instance, the integration triggers an insert or update operation on the existence of the object in the target instance taking the last modification of the object as the one that should be applied.
+			This template helps you create an online bidirectional sync of accounts between Salesforce and database instances with ability to specify filtering criteria.
+The main behavior of this template fetches data for changes (new or modified accounts) that have occurred in Salesforce and database instances during a certain defined period of time. For those accounts that were identified as not present in the target instance, the integration triggers an insert or update operation on the existence of the object in the target instance taking the last modification of the object as the one that should be applied.
 		</section>
 		<section id="considerations">
 <![CDATA[
-**Note:** This particular Anypoint Template illustrate the migration use case between Salesforce and Database, thus it requires Account instances to work.
-The Anypoint Template comes packaged with SQL script to create the DB table that it uses. 
+**Note:** This template illustrates the migration use case between Salesforce and database, thus it requires Account instances to work.
+The template comes packaged with SQL script to create the DB table that it uses. 
 It is the user's responsibility to use provided script to create the table in an available schema and change the configuration accordingly.
-The SQL script file can be found in [src/main/resources/](../master/src/main/resources/)
+The SQL script file can be found in src/main/resources/.
+This template is customized for MySQL. To use it with a different SQL implementation:
 
-This template is customized for MySQL. To use it with different SQL implementation, some changes are necessary:
-* update SQL script dialect to desired one
-* replace MySQL driver library (or add another) dependency to desired one in [POM](pom.xml)
-* update Database Config to suitable connection instead of `db:my-sql-connection` in global elements (config.xml)
-* update connection configurations in `mule.*.properties` file
+* Update the SQL script dialect to the desired one.
+* Replace the MySQL driver library (or add another) dependency to the desired one in the pom.xml file.
+* Update the database config to a suitable connection instead of `db:my-sql-connection` in global elements (config.xml).
+* Update the connection configurations in `mule.*.properties` file.
 
-To make this Anypoint Template run, there are certain preconditions that must be considered. All of them deal with the preparations in both, 
+To make this template run, there are certain preconditions that must be considered. All of them deal with the preparations in both, 
 that must be made in order for all to run smoothly. 
-**Failing to do so could lead to unexpected behavior of the template.**
+Failing to do so could lead to unexpected behavior of the template.
 ]]>
 		</section>
 		<section id="run_it">
 <![CDATA[
-In order to have your application up and running you just need to complete two simple steps:
- 1. [Configure the application properties](#propertiestobeconfigured)
- 2. Run it! ([on premise](#runonopremise) or [in Cloudhub](#runoncloudhub))
+To have your application up and running, complete two simple steps:
+ 1. Configure the application properties.
+ 2. Run it on premises or in CloudHub.
 ]]>
 		</section>
 		<section id="running_on_cloudhub">
 <![CDATA[
-In order to [create your application on CloudHub](http://www.mulesoft.org/documentation/display/current/Hello+World+on+CloudHub) 
-you should to go to Deployment > Advanced to set all environment variables detailed in **Properties to be configured** as well as the **mule.env**. 
+To create your application in CloudHub, go to Deployment > Advanced to set all environment variables detailed in "*Properties to Configure" as well as in **mule.env**. 
 ]]>
 		</section>
 		<section id="default_running_on_standalone">
 <![CDATA[
-Fill in all properties in one of the property files, for example in [mule.dev.properties] (./src/main/resources/mule.dev.properties) and run your app 
-with the corresponding environment variable to use it. To follow the example, this will be `mule.env=dev`.
+Fill in all properties in one of the property files, for example in mule.dev.properties and run your app 
+with the corresponding environment variable to use it. To follow the example, this is `mule.env=dev`.
 ]]>
 		</section>
 		<section id="application_configuration">
 		<![CDATA[
 		
-#### Application configuration
+#### Application Configuration
+
 + scheduler.frequency `10000`  
-This are the milliseconds that will run between two different checks for updates in either Database instance and Salesforce instance.
-
+This is the milliseconds to run between two different checks for updates in either the database instance or Salesforce instance.
 + scheduler.startDelay `0`
-
 + watermark.default.expression `2018-02-25T11:00:00.000Z`  
-This property is an important one, as it configures what should be the start point of the synchronization. If the use case includes synchronization of every 
-account created from the begining of the times, you should use a date previous to any account creation (perhaphs `1900-01-01T08:00:00.000Z` is a good choice). 
-If you want to synchronize the accounts created from now on, then you should use a default value according to that requirement (for example, 
-if today is April 21st of 2018 and it's eleven o'clock in London, then you could use the following value `2018-04-21T11:00:00.000Z`).
-
+This property important as it configures what should be the start point of the synchronization. If the use case includes synchronizing every 
+account created from the beginning of time, you should use a date previous to any account creation, such as `1900-01-01T08:00:00.000Z`. 
+If you want to synchronize the accounts created from now on, then use a default value according to that requirement. For example, 
+if today is April 21, 2018 and it's eleven o'clock in London, then you could use the following value `2018-04-21T11:00:00.000Z`).
 + page.size `1000`
 
+#### SalesForce Connector Configuration
 
-#### SalesForce Connector configuration
 + sfdc.username `jorge.drexler@mail.com`
 + sfdc.password `Noctiluca123`
 + sfdc.securityToken `avsfwCUl7apQs56Xq2AKi3X`
 + sfdc.integration.user.id `005n0000000T3QkAAK`
+	**Note:** To find the correct *sfdc.integration.user.id* value, refer to the example project **Salesforce Data Retrieval** in Anypoint Exchange.
 
-	**Note:** To find out the correct *sfdc.integration.user.id* value, please, refer to example project **Salesforce Data Retrieval** in [Anypoint Exchange](http://www.mulesoft.org/documentation/display/current/Anypoint+Exchange).
+#### Database Connector Configuration
 
-#### Database Connector configuration
 + db.host `localhost`
 + db.port `3306`
 + db.databaseName `dbname`
@@ -87,20 +84,19 @@ Not relevant for this use case.
 		</section>
 		<section id="default_endpoints_xml">
 		<![CDATA[
-This file should contain every inbound and outbound endpoint of your integration app. 
-In this particular template, this file contains a scheduler endpoint that query Salesforce and Database for updates using watermark.
-
+This file contains every inbound and outbound endpoint of your integration app. 
+In this template, this file contains a scheduler endpoint that queries Salesforce and the database for updates using watermark.
 ]]>
 		</section>
 		<section id="default_business_logic_xml">
 		<![CDATA[
-This file holds the functional aspect of the template. Its main component is a [Batch Job](http://www.mulesoft.org/documentation/display/current/Batch+Processing), and it includes steps for both executing the synchronization from Salesforce to Database , and the other way around.
+This file holds the functional aspect of the template. Its main component is a batch job, and it includes steps for both executing the synchronization from Salesforce to the database, and the other way around.
 ]]>
 		</section>
 		<section id="default_error_handling_xml">
 		<![CDATA[
-		This is the right place to handle how your integration will react depending on the different exceptions. 
-This file holds a [Error Handling](http://www.mulesoft.org/documentation/display/current/Error+Handling) that is referenced by the scheduler flow in the endpoints xml file.]]>
+		This file handles how your integration reacts depending on the different exceptions. 
+This file provides error handling that is referenced by the scheduler flow in the endpoints XML file.]]>
 		</section>
 	</sections>
 </configuration>
