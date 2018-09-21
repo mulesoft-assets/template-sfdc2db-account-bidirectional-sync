@@ -1,7 +1,7 @@
 0<?xml version="1.0"?>
 <configuration>
 	<placeholders>
-		<placeholder id="template_name">Salesforce To database Account Bidirectional Synchronization</placeholder>
+		<placeholder id="template_name">Salesforce To Database Account Bidirectional Synchronization</placeholder>
 	</placeholders>
 	<sections>
 		<section id="use_case">
@@ -11,9 +11,10 @@ The main behavior of this template fetches data for changes (new or modified acc
 		<section id="considerations">
 <![CDATA[
 **Note:** This template illustrates the migration use case between Salesforce and database, thus it requires Account instances to work.
-The template comes packaged with SQL script to create the DB table that it uses. 
-It is the user's responsibility to use provided script to create the table in an available schema and change the configuration accordingly.
-The SQL script file can be found in src/main/resources/.
+The template comes packaged with a SQL script to create the database table it uses. 
+It is your responsibility to use the provided script to create the table in an available schema and change the configuration accordingly.
+The SQL script file can be found in src/main/resources/ of this project.
+
 This template is customized for MySQL. To use it with a different SQL implementation:
 
 * Update the SQL script dialect to the desired one.
@@ -22,8 +23,7 @@ This template is customized for MySQL. To use it with a different SQL implementa
 * Update the connection configurations in `mule.*.properties` file.
 
 To make this template run, there are certain preconditions that must be considered. All of them deal with the preparations in both, 
-that must be made in order for all to run smoothly. 
-Failing to do so could lead to unexpected behavior of the template.
+that must be made for all to run smoothly. Failing to do so could lead to unexpected behavior of the template.
 ]]>
 		</section>
 		<section id="run_it">
