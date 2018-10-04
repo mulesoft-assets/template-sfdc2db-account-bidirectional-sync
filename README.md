@@ -11,9 +11,10 @@ This template leverages watermarking functionality to select only the most recen
 
 **Note**: Any references in the video to DataMapper have been updated in the template with DataWeave transformations.
 
-```
-![](https://www.youtube.com/embed/igeQiRECcYE?wmode=transparent)
-```
+[![YouTube Video](http://img.youtube.com/vi/igeQiRECcYE/0.jpg)](https://www.youtube.com/watch?v=igeQiRECcYE)
+
+// Exchange link: ![](https://www.youtube.com/embed/igeQiRECcYE?wmode=transparent)
+
 
 # License Agreement
 
