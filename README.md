@@ -13,7 +13,7 @@ This template leverages watermarking functionality to select only the most recen
 
 [![YouTube Video](http://img.youtube.com/vi/igeQiRECcYE/0.jpg)](https://www.youtube.com/watch?v=igeQiRECcYE)
 
-// Exchange link: ![](https://www.youtube.com/embed/igeQiRECcYE?wmode=transparent)
+[//]: <> (![](https://www.youtube.com/embed/igeQiRECcYE?wmode=transparent))
 
 
 # License Agreement
