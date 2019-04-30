@@ -142,7 +142,6 @@ payload map ($ - 'LastModifiedDate'
 							</ee:message>
 						</ee:transform>
 						<salesforce:upsert-bulk type="Account" doc:name="Upsert bulk - Accounts in Salesforce" doc:id="525936a5-2183-41a3-9ea3-c4f1fd14020d" config-ref="Salesforce_Sfdc_config" externalIdFieldName="Id"/>
-						<logger level="INFO" doc:name="Log upsert" doc:id="fbeb42b3-b5c3-44f0-addd-4ca9788f97f1" message="Upsert in Salesforce: #[write(payload, 'application/json', {'indent': false})]"/>
 					</batch:aggregator>
 				</batch:step>
 			</batch:process-records>
