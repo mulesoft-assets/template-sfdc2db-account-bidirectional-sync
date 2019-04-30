@@ -67,7 +67,6 @@ payload map ($ - 'LastModifiedDate'
 	CURRENT_TIMESTAMP()
 )</db:sql>
 						</db:bulk-insert>
-						<logger level="INFO" doc:name="Log insert" doc:id="fbeb42b3-b5c3-44f0-addd-4ca9788f97f1" message="Insert in DB: #[payload]"/>
 					</batch:aggregator>
 				</batch:step>
 				<batch:step name="updateAccountInDatabase" doc:id="78a74ab4-9b91-416d-985a-acda2ac377eb" acceptExpression="payload.IdDB != null  and (payload.LastModifiedDateDB &lt; payload.LastModifiedDate)">
