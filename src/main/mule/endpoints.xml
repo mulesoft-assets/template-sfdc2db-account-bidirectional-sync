@@ -51,7 +51,7 @@ http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/
 	</flow>
 		<flow name="querySalesforceFlow">
 		<os:retrieve key="watermark" target="lastQueryDateSFDC" doc:name="Retrieve lastQueryDateSfdc" objectStore="watermarkStoreSFDC">
-        	<os:default-value><![CDATA[#[${watermark.default.expression}]]]></os:default-value>
+        	<os:default-value><![CDATA[[${watermark.default.expression}]]]></os:default-value>
     	</os:retrieve>
     	<salesforce:query doc:name="Query Accounts from Salesforce" doc:id="b6ee7f69-41e5-4cce-9d6f-5e1901002515" config-ref="Salesforce_Sfdc_config">
 			<salesforce:salesforce-query >SELECT AccountNumber, AccountSource, AnnualRevenue, BillingCity, BillingCountry, BillingPostalCode, BillingState, BillingStreet, Description, Fax, Id, Industry, LastModifiedById, LastModifiedDate, Name, NumberOfEmployees, OwnerId, Ownership, ParentId, Phone, Rating, ShippingCity, ShippingCountry, ShippingPostalCode, ShippingState, ShippingStreet, Sic, SicDesc, Site, TickerSymbol, Type, Website FROM Account WHERE LastModifiedDate &gt; :lastModifiedDate AND LastModifiedById != '${sfdc.integration.user.id}' ORDER BY LastModifiedDate ASC LIMIT 300</salesforce:salesforce-query>
@@ -68,7 +68,7 @@ http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/
 </flow>
 <flow name="queryDatabaseFlow">
 		<os:retrieve key="watermark" objectStore="watermarkStoreDB" target="lastQueryDateDB" doc:name="Retrieve lastQueryDateDB">
-        <os:default-value><![CDATA[#[${watermark.default.expression}]]]></os:default-value>
+        <os:default-value><![CDATA[[${watermark.default.expression}]]]></os:default-value>
     </os:retrieve>
 		<db:select doc:name="Select Accounts from DB" doc:id="4d6d6589-52f5-4493-9d97-92729058cd26" config-ref="Database_Config">
 			<db:sql >SELECT Name, AccountNumber, Description, LastModifiedDate, NumberOfEmployees, Phone, Type 
