@@ -124,13 +124,13 @@ output application/java
 				<db:sql >SELECT Id, Industry FROM Account WHERE Name = :name</db:sql>
 				<db:input-parameters ><![CDATA[#[{'name' : vars.testName2}]]]></db:input-parameters>
 			</db:select>
-			<munit-tools:assert-that doc:name="Assert that Industry was not updated" doc:id="1e559409-a86b-47b9-bb44-cbcac54c4ade" expression="#[payload[0].Industry]" is="#[MunitTools::equalTo(vars.testIndustry)]"/>
+			<munit-tools:assert-that doc:name="Assert that Industry was not updated" doc:id="1e559409-a86b-47b9-bb44-cbcac54c4ade" expression="#[payload[0].Industry]" is="#[MunitTools::equalTo(vars.testIndustry)]" message="Assert that Industry was not updated has failed"/>
 			<db:select doc:name="Query for Account, which should be inserted in instance DB" doc:id="6762fde0-2165-4199-a531-944c32c19f3b" config-ref="Database_Config">
 				<db:sql>SELECT Id FROM Account WHERE Name = :name</db:sql>
 				<db:input-parameters><![CDATA[#[{'name' : vars.testName1}]]]></db:input-parameters>
 			</db:select>
 			<set-variable value="#[sizeOf(payload)]" doc:name="Set Variable with result size" doc:id="b485fb70-e4a8-4f97-9da9-e0ace1a236c9" variableName="resultSize" />
-			<munit-tools:assert-that doc:name="Assert that we found migrated Account" doc:id="a8f4453a-10c6-4508-8ecf-64cc08e6129c" expression="#[vars.resultSize]" is="#[MunitTools::equalTo(1)]"/>
+			<munit-tools:assert-that doc:name="Assert that we found migrated Account" doc:id="a8f4453a-10c6-4508-8ecf-64cc08e6129c" expression="#[vars.resultSize]" is="#[MunitTools::equalTo(1)]" message="Assert that we found migrated Account has failed"/>
 		</munit:execution>
 		<munit:validation>
 			<munit-tools:verify-call doc:name="Verify DB insert call" doc:id="d169a8c9-05fa-410f-bf1f-679ac50991ea" processor="db:bulk-insert" times="2" />
@@ -154,7 +154,7 @@ output application/java
 	"name" : vars.testName2
 }]]]></salesforce:parameters>
 			</salesforce:query>
-			<munit-tools:assert-that doc:name="Assert that Industry was updated" doc:id="1e559409-a86b-47b9-bb44-cbcac54c4ade" expression="#[payload[0].Industry]" is="#[MunitTools::equalTo(vars.testIndustryUpdated)]"/>
+			<munit-tools:assert-that doc:name="Assert that Industry was updated" doc:id="1e559409-a86b-47b9-bb44-cbcac54c4ade" expression="#[payload[0].Industry]" is="#[MunitTools::equalTo(vars.testIndustryUpdated)]" message="Assert that Industry was updated has failed"/>
 			<salesforce:query doc:name="Query for Account, which should be inserted in SFDC" doc:id="145cdbc1-3137-4eef-b8e3-7aea91cb9833" config-ref="Salesforce_Sfdc_test_config">
 				<salesforce:salesforce-query>SELECT Id FROM Account WHERE Name = ':name'</salesforce:salesforce-query>
 				<salesforce:parameters><![CDATA[#[output applicaton/java
@@ -164,7 +164,7 @@ output application/java
 }]]]></salesforce:parameters>
 			</salesforce:query>
 			<set-variable value="#[sizeOf(payload)]" doc:name="Set Variable with result size" doc:id="b485fb70-e4a8-4f97-9da9-e0ace1a236c9" variableName="resultSize" />
-			<munit-tools:assert-that doc:name="Assert that we found migrated Account" doc:id="a8f4453a-10c6-4508-8ecf-64cc08e6129c" expression="#[vars.resultSize]" is="#[MunitTools::equalTo(1)]"/>
+			<munit-tools:assert-that doc:name="Assert that we found migrated Account" doc:id="a8f4453a-10c6-4508-8ecf-64cc08e6129c" expression="#[vars.resultSize]" is="#[MunitTools::equalTo(1)]" message="Assert that we found migrated Account has failed"/>
 			<salesforce:delete doc:name="Delete migrated Accounts from SFDC" doc:id="353f9ea2-b733-4370-9d93-a97ee651f5e4" config-ref="Salesforce_Sfdc_test_config">
 				<salesforce:delete-ids ><![CDATA[#[payload map ($.Id)]]]></salesforce:delete-ids>
 			</salesforce:delete>
